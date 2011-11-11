@@ -301,4 +301,11 @@ config EDAC_HIGHBANK_MC
 	  Support for error detection and correction on the
 	  Calxeda Highbank memory controller.
 
+config EDAC_HIGHBANK_L2
+	tristate "Highbank L2 Cache"
+	depends on ARCH_HIGHBANK
+	help
+	  Support for error detection and correction on the
+	  Calxeda Highbank memory controller.
+
 endif # EDAC
