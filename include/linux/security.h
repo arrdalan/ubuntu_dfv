@@ -1439,8 +1439,7 @@ struct security_operations {
 			  struct dentry *new_dentry);
 	int (*path_rename) (struct path *old_dir, struct dentry *old_dentry,
 			    struct path *new_dir, struct dentry *new_dentry);
-	int (*path_chmod) (struct dentry *dentry, struct vfsmount *mnt,
-			   umode_t mode);
+	int (*path_chmod) (struct path *path, umode_t mode);
 	int (*path_chown) (struct path *path, uid_t uid, gid_t gid);
 	int (*path_chroot) (struct path *path);
 #endif
@@ -2874,8 +2873,7 @@ int security_path_link(struct dentry *old_dentry, struct path *new_dir,
 		       struct dentry *new_dentry);
 int security_path_rename(struct path *old_dir, struct dentry *old_dentry,
 			 struct path *new_dir, struct dentry *new_dentry);
-int security_path_chmod(struct dentry *dentry, struct vfsmount *mnt,
-			umode_t mode);
+int security_path_chmod(struct path *path, umode_t mode);
 int security_path_chown(struct path *path, uid_t uid, gid_t gid);
 int security_path_chroot(struct path *path);
 #else	/* CONFIG_SECURITY_PATH */
@@ -2927,9 +2925,7 @@ static inline int security_path_rename(struct path *old_dir,
 	return 0;
 }
 
-static inline int security_path_chmod(struct dentry *dentry,
-				      struct vfsmount *mnt,
-				      umode_t mode)
+static inline int security_path_chmod(struct path *path, umode_t mode)
 {
 	return 0;
 }

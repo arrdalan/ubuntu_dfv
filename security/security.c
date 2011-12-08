@@ -465,12 +465,11 @@ int security_path_truncate(struct path *path)
 }
 EXPORT_SYMBOL(security_path_truncate);
 
-int security_path_chmod(struct dentry *dentry, struct vfsmount *mnt,
-			umode_t mode)
+int security_path_chmod(struct path *path, umode_t mode)
 {
-	if (unlikely(IS_PRIVATE(dentry->d_inode)))
+	if (unlikely(IS_PRIVATE(path->dentry->d_inode)))
 		return 0;
-	return security_ops->path_chmod(dentry, mnt, mode);
+	return security_ops->path_chmod(path, mode);
 }
 EXPORT_SYMBOL(security_path_chmod);
 
