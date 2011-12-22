@@ -125,6 +125,10 @@
 			interrupts = <0 7 4>;
 		};
 
+		ipc-keys {
+			compatible = "calxeda,hb-keys";
+		};
+
 		gpioe: gpio@fff30000 {
 			#gpio-cells = <2>;
 			compatible = "arm,pl061", "arm,primecell";
