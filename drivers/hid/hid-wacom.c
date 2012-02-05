@@ -532,6 +532,8 @@ static int wacom_probe(struct hid_device *hdev,
 		goto err_battery;
 	}
 
+	power_supply_powers(&wdata->battery, &hdev->dev);
+
 	wdata->ac.properties = wacom_ac_props;
 	wdata->ac.num_properties = ARRAY_SIZE(wacom_ac_props);
 	wdata->ac.get_property = wacom_ac_get_property;
@@ -547,6 +549,8 @@ static int wacom_probe(struct hid_device *hdev,
 			 "can't create ac battery attribute, err: %d\n", ret);
 		goto err_ac;
 	}
+
+	power_supply_powers(&wdata->ac, &hdev->dev);
 #endif
 	return 0;
 
