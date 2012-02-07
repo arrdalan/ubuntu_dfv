@@ -1265,6 +1265,8 @@ static int wiimote_hid_probe(struct hid_device *hdev,
 		goto err_battery;
 	}
 
+	power_supply_powers(&wdata->battery, &hdev->dev);
+
 	ret = wiimote_leds_create(wdata);
 	if (ret)
 		goto err_free;
