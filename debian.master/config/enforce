@@ -103,3 +103,9 @@ value CONFIG_EFI_VARS y | !exists CONFIG_EFI_VARS
 # Ensure CONFIG_NVRAM is y for powerpc and powerpc-smp, LP:942193
 (flavour powerpc powerpc-smp & value CONFIG_NVRAM y) | \
  (value CONFIG_NVRAM m | !exists CONFIG_NVRAM)
+
+# Ensure CONFIG_STUB_POULSBO is disabled if CONFIG_DRM_PSB is enabled
+# See LP:899244
+(!exists CONFIG_DRM_PSB | value CONFIG_DRM_PSB n) | \
+((value CONFIG_DRM_PSB y | value CONFIG_DRM_PSB m) & (value CONFIG_STUB_POULSBO n | !exists CONFIG_STUB_POULSBO))
+
