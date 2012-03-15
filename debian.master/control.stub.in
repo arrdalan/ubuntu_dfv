@@ -47,7 +47,7 @@ Description: Linux kernel specific documentation for version PKGVER
 
 Package: SRCPKGNAME-tools-common
 Architecture: all
-Section: admin
+Section: kernel
 Priority: optional
 Depends: ${misc:Depends}
 Replaces: SRCPKGNAME-tools (<= 2.6.32-16.25)
