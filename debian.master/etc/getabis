@@ -11,4 +11,4 @@ getall amd64 generic virtual
 getall i386 generic generic-pae virtual
 
 # Ports arches and flavours.
-getall powerpc powerpc powerpc-smp powerpc64-smp
+getall powerpc powerpc-smp powerpc64-smp
