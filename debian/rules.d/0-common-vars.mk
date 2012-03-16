@@ -166,9 +166,14 @@ do_full_source=false
 
 # build tools
 ifneq ($(wildcard $(CURDIR)/tools),)
-do_tools?=true
+	ifeq ($(do_tools),)
+		ifneq ($(DEB_BUILD_GNU_TYPE),$(DEB_HOST_GNU_TYPE))
+			do_tools=false
+		endif
+	endif
+	do_tools?=true
 else
-do_tools?=false
+	do_tools?=false
 endif
 tools_pkg_name=$(src_pkg_name)-tools-$(abi_release)
 tools_common_pkg_name=$(src_pkg_name)-tools-common
