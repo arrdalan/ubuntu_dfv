@@ -188,3 +188,9 @@ Depends: kernel-image
 Priority: standard
 Description: ipmi modules
 
+Package: multipath-modules
+Depends: kernel-image
+Priority: extra
+Description: DM-Multipath support
+  This package contains modules for device-mapper multipath support.
+

@@ -1,4 +1,3 @@
-dm-multipath ?
 dm-crypt ?
 dm-zero ?
 faulty ?
