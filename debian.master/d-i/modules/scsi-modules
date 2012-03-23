@@ -117,6 +117,7 @@ vmw_pvscsi ?
 ums-cypress ?
 be2iscsi ?
 3w-sas ?
+isci ?
 
 # device handlers
 scsi_dh_alua ?
