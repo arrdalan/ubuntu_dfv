@@ -82,6 +82,9 @@ ipddp ?
 ipw2100 ?
 ipw2200 ?
 iwl3945 ?
+iwl4965 ?
+iwl-legacy ?
+iwlwifi ?
 ixgb ?
 ixgbe ?
 lance ?
