@@ -33,8 +33,6 @@ atl2 ?
 atmel ?
 atmel_pci ?
 b44 ?
-bcm43xx ?
-bcm43xx-mac80211 ?
 be2net ?
 bmac ?
 bnx2 ?
