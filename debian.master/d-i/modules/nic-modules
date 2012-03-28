@@ -38,6 +38,8 @@ bmac ?
 bnx2 ?
 bnx2x ?
 bonding ?
+brcmfmac ?
+brcmsmac ?
 cassini ?
 com20020 ?
 com20020-pci ?
