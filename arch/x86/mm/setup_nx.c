@@ -6,7 +6,11 @@
 #include <asm/pgtable.h>
 #include <asm/proto.h>
 
+#ifdef CONFIG_X86_32
+int disable_nx; /* referenced by load_elf_binary() */
+#else
 int disable_nx __cpuinitdata;
+#endif
 
 /*
  * noexec = on|off
