@@ -8158,7 +8158,7 @@ static void init_tg_cfs_entry(struct task_group *tg, struct cfs_rq *cfs_rq,
 		se->cfs_rq = parent->my_q;
 
 	se->my_q = cfs_rq;
-	update_load_set(&se->load, tg->shares);
+	update_load_set(&se->load, 0);
 	se->parent = parent;
 }
 #endif
