@@ -9,5 +9,5 @@ raid10 ?
 raid456 ?
 
 # Extras
-dm-raid4-5 ?
+dm-raid45 ?
 dm-loop ?
