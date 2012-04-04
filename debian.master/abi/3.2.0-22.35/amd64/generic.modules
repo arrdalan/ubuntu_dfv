@@ -2999,6 +2999,8 @@ usbduxfast
 usbduxsigma
 usb_gigaset
 usbhid
+usbip-core
+usbip-host
 usbkbd
 usblcd
 usbled
@@ -3032,6 +3034,7 @@ vfat
 vga16fb
 vgastate
 vgg2432a4
+vhci-hcd
 vhost_net
 via
 via686a
