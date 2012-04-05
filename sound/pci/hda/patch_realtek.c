@@ -2937,6 +2937,8 @@ static int alc_auto_fill_extra_dacs(struct hda_codec *codec, int num_outs,
 
 static int alc_auto_fill_multi_ios(struct hda_codec *codec,
 				   unsigned int location);
+static hda_nid_t alc_look_for_out_vol_nid(struct hda_codec *codec,
+					  hda_nid_t pin, hda_nid_t dac);
 
 /* fill in the dac_nids table from the parsed pin configuration */
 static int alc_auto_fill_dac_nids(struct hda_codec *codec)
@@ -3036,6 +3038,11 @@ static int alc_auto_fill_dac_nids(struct hda_codec *codec)
 			goto again;
 		}
 	}
+
+	if (cfg->line_out_pins[0])
+		spec->vmaster_nid =
+			alc_look_for_out_vol_nid(codec, cfg->line_out_pins[0],
+						 spec->multiout.dac_nids[0]);
 
 	return 0;
 }
@@ -4000,8 +4007,10 @@ static int patch_alc880(struct hda_codec *codec)
 #endif
 	}
 
-	if (board_config != ALC_MODEL_AUTO)
+	if (board_config != ALC_MODEL_AUTO) {
+		spec->vmaster_nid = 0x0c;
 		setup_preset(codec, &alc880_presets[board_config]);
+	}
 
 	if (!spec->no_analog && !spec->adc_nids) {
 		alc_auto_fill_adc_caps(codec);
@@ -4018,8 +4027,6 @@ static int patch_alc880(struct hda_codec *codec)
 			goto error;
 		set_beep_amp(spec, 0x0b, 0x05, HDA_INPUT);
 	}
-
-	spec->vmaster_nid = 0x0c;
 
 	codec->patch_ops = alc_patch_ops;
 	if (board_config == ALC_MODEL_AUTO)
@@ -4129,8 +4136,10 @@ static int patch_alc260(struct hda_codec *codec)
 #endif
 	}
 
-	if (board_config != ALC_MODEL_AUTO)
+	if (board_config != ALC_MODEL_AUTO) {
 		setup_preset(codec, &alc260_presets[board_config]);
+		spec->vmaster_nid = 0x08;
+	}
 
 	if (!spec->no_analog && !spec->adc_nids) {
 		alc_auto_fill_adc_caps(codec);
@@ -4149,8 +4158,6 @@ static int patch_alc260(struct hda_codec *codec)
 	}
 
 	alc_apply_fixup(codec, ALC_FIXUP_ACT_PROBE);
-
-	spec->vmaster_nid = 0x08;
 
 	codec->patch_ops = alc_patch_ops;
 	if (board_config == ALC_MODEL_AUTO)
@@ -4354,8 +4361,10 @@ static int patch_alc882(struct hda_codec *codec)
 #endif
 	}
 
-	if (board_config != ALC_MODEL_AUTO)
+	if (board_config != ALC_MODEL_AUTO) {
 		setup_preset(codec, &alc882_presets[board_config]);
+		spec->vmaster_nid = 0x0c;
+	}
 
 	if (!spec->no_analog && !spec->adc_nids) {
 		alc_auto_fill_adc_caps(codec);
@@ -4374,8 +4383,6 @@ static int patch_alc882(struct hda_codec *codec)
 	}
 
 	alc_apply_fixup(codec, ALC_FIXUP_ACT_PROBE);
-
-	spec->vmaster_nid = 0x0c;
 
 	codec->patch_ops = alc_patch_ops;
 	if (board_config == ALC_MODEL_AUTO)
@@ -4509,8 +4516,10 @@ static int patch_alc262(struct hda_codec *codec)
 #endif
 	}
 
-	if (board_config != ALC_MODEL_AUTO)
+	if (board_config != ALC_MODEL_AUTO) {
 		setup_preset(codec, &alc262_presets[board_config]);
+		spec->vmaster_nid = 0x0c;
+	}
 
 	if (!spec->no_analog && !spec->adc_nids) {
 		alc_auto_fill_adc_caps(codec);
@@ -4529,8 +4538,6 @@ static int patch_alc262(struct hda_codec *codec)
 	}
 
 	alc_apply_fixup(codec, ALC_FIXUP_ACT_PROBE);
-
-	spec->vmaster_nid = 0x0c;
 
 	codec->patch_ops = alc_patch_ops;
 	if (board_config == ALC_MODEL_AUTO)
@@ -4642,8 +4649,6 @@ static int patch_alc268(struct hda_codec *codec)
 
 	if (!spec->no_analog && !spec->cap_mixer)
 		set_capture_mixer(codec);
-
-	spec->vmaster_nid = 0x02;
 
 	codec->patch_ops = alc_patch_ops;
 	spec->init_hook = alc_auto_init_std;
@@ -5200,8 +5205,6 @@ static int patch_alc269(struct hda_codec *codec)
 
 	alc_apply_fixup(codec, ALC_FIXUP_ACT_PROBE);
 
-	spec->vmaster_nid = 0x02;
-
 	codec->patch_ops = alc_patch_ops;
 #ifdef CONFIG_PM
 	codec->patch_ops.resume = alc269_resume;
@@ -5331,8 +5334,6 @@ static int patch_alc861(struct hda_codec *codec)
 		set_beep_amp(spec, 0x23, 0, HDA_OUTPUT);
 	}
 
-	spec->vmaster_nid = 0x03;
-
 	alc_apply_fixup(codec, ALC_FIXUP_ACT_PROBE);
 
 	codec->patch_ops = alc_patch_ops;
@@ -5456,8 +5457,6 @@ static int patch_alc861vd(struct hda_codec *codec)
 			goto error;
 		set_beep_amp(spec, 0x0b, 0x05, HDA_INPUT);
 	}
-
-	spec->vmaster_nid = 0x02;
 
 	alc_apply_fixup(codec, ALC_FIXUP_ACT_PROBE);
 
@@ -5841,7 +5840,6 @@ static int patch_alc662(struct hda_codec *codec)
 			break;
 		}
 	}
-	spec->vmaster_nid = 0x02;
 
 	alc_apply_fixup(codec, ALC_FIXUP_ACT_PROBE);
 
@@ -5894,8 +5892,6 @@ static int patch_alc680(struct hda_codec *codec)
 
 	if (!spec->no_analog && !spec->cap_mixer)
 		set_capture_mixer(codec);
-
-	spec->vmaster_nid = 0x02;
 
 	codec->patch_ops = alc_patch_ops;
 	spec->init_hook = alc_auto_init_std;
