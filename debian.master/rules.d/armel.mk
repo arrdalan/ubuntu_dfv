@@ -1,7 +1,6 @@
 human_arch	= ARM (soft float)
 build_arch	= arm
 header_arch	= arm
-asm_link	= arm
 defconfig	= defconfig
 flavours	= omap
 build_image	= zImage

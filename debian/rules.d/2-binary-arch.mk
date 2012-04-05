@@ -191,7 +191,7 @@ endif
 	$(SHELL) $(DROOT)/scripts/link-headers "$(hdrdir)" "$(basepkg)" "$*"
 	# Setup the proper asm symlink
 	rm -f $(hdrdir)/include/asm
-	ln -s asm-$(asm_link) $(hdrdir)/include/asm
+	(cd $(hdrdir)/include; ln -s asm-generic asm)
 	# The build symlink
 	install -d debian/$(basepkg)-$*/lib/modules/$(abi_release)-$*
 	ln -s /usr/src/$(basepkg)-$* \
