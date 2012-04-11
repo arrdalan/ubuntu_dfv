@@ -10065,7 +10065,6 @@ EXPORT_SYMBOL_GPL vmlinux 0x0260a00c	stmpe_block_read
 EXPORT_SYMBOL_GPL vmlinux 0x026211e2	memory_failure_queue
 EXPORT_SYMBOL_GPL vmlinux 0x02804064	pci_msi_off
 EXPORT_SYMBOL_GPL vmlinux 0x02e4c5cd	regulator_register
-EXPORT_SYMBOL_GPL vmlinux 0x030d11a8	kmsg_dump_register
 EXPORT_SYMBOL_GPL vmlinux 0x03217a52	ata_std_postreset
 EXPORT_SYMBOL_GPL vmlinux 0x0343bdf1	__i2c_board_list
 EXPORT_SYMBOL_GPL vmlinux 0x039d57ff	ata_scsi_port_error_handler
@@ -10137,6 +10136,7 @@ EXPORT_SYMBOL_GPL vmlinux 0x0ade5b9d	fuse_do_ioctl
 EXPORT_SYMBOL_GPL vmlinux 0x0ae30099	generic_fh_to_dentry
 EXPORT_SYMBOL_GPL vmlinux 0x0b07abe2	unshare_fs_struct
 EXPORT_SYMBOL_GPL vmlinux 0x0b19ed7c	apei_estatus_check_header
+EXPORT_SYMBOL_GPL vmlinux 0x0b28defb	kmsg_dump_unregister
 EXPORT_SYMBOL_GPL vmlinux 0x0b3764b2	regmap_raw_read
 EXPORT_SYMBOL_GPL vmlinux 0x0b38165e	crypto_register_template
 EXPORT_SYMBOL_GPL vmlinux 0x0b9869ca	sata_scr_write
@@ -10599,7 +10599,6 @@ EXPORT_SYMBOL_GPL vmlinux 0x3c7bb9d7	dw_spi_resume_host
 EXPORT_SYMBOL_GPL vmlinux 0x3c7bd5b8	spi_sync
 EXPORT_SYMBOL_GPL vmlinux 0x3c9390db	pci_vpd_find_tag
 EXPORT_SYMBOL_GPL vmlinux 0x3c942368	profile_event_unregister
-EXPORT_SYMBOL_GPL vmlinux 0x3ca16d23	kmsg_dump_unregister
 EXPORT_SYMBOL_GPL vmlinux 0x3cac21b9	regulator_sync_voltage
 EXPORT_SYMBOL_GPL vmlinux 0x3caf23db	crypto_init_shash_spawn
 EXPORT_SYMBOL_GPL vmlinux 0x3ccfd38b	gnttab_unmap_refs
@@ -10712,6 +10711,7 @@ EXPORT_SYMBOL_GPL vmlinux 0x46f732de	queue_work_on
 EXPORT_SYMBOL_GPL vmlinux 0x471559e4	task_active_pid_ns
 EXPORT_SYMBOL_GPL vmlinux 0x47229b5c	gpio_request
 EXPORT_SYMBOL_GPL vmlinux 0x472fe746	sysfs_create_bin_file
+EXPORT_SYMBOL_GPL vmlinux 0x474359b6	kmsg_dump_register
 EXPORT_SYMBOL_GPL vmlinux 0x479e9ba6	relay_buf_full
 EXPORT_SYMBOL_GPL vmlinux 0x47e2ad9c	rdev_get_drvdata
 EXPORT_SYMBOL_GPL vmlinux 0x47ef5ca0	md_new_event

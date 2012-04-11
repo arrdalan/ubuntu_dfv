@@ -10070,7 +10070,6 @@ EXPORT_SYMBOL_GPL vmlinux 0x02df497a	xfrm_audit_state_add
 EXPORT_SYMBOL_GPL vmlinux 0x02ec30fa	__put_task_struct
 EXPORT_SYMBOL_GPL vmlinux 0x02fc4c57	sysfs_chmod_file
 EXPORT_SYMBOL_GPL vmlinux 0x03090d4c	locks_release_private
-EXPORT_SYMBOL_GPL vmlinux 0x030d11a8	kmsg_dump_register
 EXPORT_SYMBOL_GPL vmlinux 0x03235a26	adp5520_clr_bits
 EXPORT_SYMBOL_GPL vmlinux 0x0343bdf1	__i2c_board_list
 EXPORT_SYMBOL_GPL vmlinux 0x034f37c5	wm831x_regmap_config
@@ -10129,6 +10128,7 @@ EXPORT_SYMBOL_GPL vmlinux 0x0ab4fd04	class_remove_file
 EXPORT_SYMBOL_GPL vmlinux 0x0b07abe2	unshare_fs_struct
 EXPORT_SYMBOL_GPL vmlinux 0x0b19ed7c	apei_estatus_check_header
 EXPORT_SYMBOL_GPL vmlinux 0x0b2742ad	blk_queue_lld_busy
+EXPORT_SYMBOL_GPL vmlinux 0x0b28defb	kmsg_dump_unregister
 EXPORT_SYMBOL_GPL vmlinux 0x0b47a2a0	tcp_init_congestion_ops
 EXPORT_SYMBOL_GPL vmlinux 0x0b6c9b7f	virtio_check_driver_offered_feature
 EXPORT_SYMBOL_GPL vmlinux 0x0b7ba518	bus_unregister
@@ -10609,7 +10609,6 @@ EXPORT_SYMBOL_GPL vmlinux 0x3c84a5ef	bus_create_file
 EXPORT_SYMBOL_GPL vmlinux 0x3c8ffbcc	edac_get_sysfs_class
 EXPORT_SYMBOL_GPL vmlinux 0x3c9390db	pci_vpd_find_tag
 EXPORT_SYMBOL_GPL vmlinux 0x3c942368	profile_event_unregister
-EXPORT_SYMBOL_GPL vmlinux 0x3ca16d23	kmsg_dump_unregister
 EXPORT_SYMBOL_GPL vmlinux 0x3cac21b9	regulator_sync_voltage
 EXPORT_SYMBOL_GPL vmlinux 0x3cb080e2	sdio_get_host_pm_caps
 EXPORT_SYMBOL_GPL vmlinux 0x3cb3f93d	xfrm_audit_state_replay_overflow
@@ -10717,6 +10716,7 @@ EXPORT_SYMBOL_GPL vmlinux 0x46f2ac61	pci_hp_deregister
 EXPORT_SYMBOL_GPL vmlinux 0x46f732de	queue_work_on
 EXPORT_SYMBOL_GPL vmlinux 0x47229b5c	gpio_request
 EXPORT_SYMBOL_GPL vmlinux 0x472747d8	cpci_hp_unregister_bus
+EXPORT_SYMBOL_GPL vmlinux 0x474359b6	kmsg_dump_register
 EXPORT_SYMBOL_GPL vmlinux 0x4768a660	pm_runtime_set_autosuspend_delay
 EXPORT_SYMBOL_GPL vmlinux 0x47f9934d	generic_fh_to_parent
 EXPORT_SYMBOL_GPL vmlinux 0x47fad34f	input_ff_create

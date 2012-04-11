@@ -9803,7 +9803,6 @@ EXPORT_SYMBOL_GPL vmlinux 0x02234eb6	__irq_set_handler
 EXPORT_SYMBOL_GPL vmlinux 0x023a3372	each_symbol_section
 EXPORT_SYMBOL_GPL vmlinux 0x02c37014	platform_device_register_full
 EXPORT_SYMBOL_GPL vmlinux 0x02fed445	regulator_get_exclusive
-EXPORT_SYMBOL_GPL vmlinux 0x030d11a8	kmsg_dump_register
 EXPORT_SYMBOL_GPL vmlinux 0x0315a6df	tty_encode_baud_rate
 EXPORT_SYMBOL_GPL vmlinux 0x032d4675	regulator_get
 EXPORT_SYMBOL_GPL vmlinux 0x0343bdf1	__i2c_board_list
@@ -9873,6 +9872,7 @@ EXPORT_SYMBOL_GPL vmlinux 0x0ad7e8a3	ata_sff_postreset
 EXPORT_SYMBOL_GPL vmlinux 0x0b07abe2	unshare_fs_struct
 EXPORT_SYMBOL_GPL vmlinux 0x0b1e3d9b	tpm_read
 EXPORT_SYMBOL_GPL vmlinux 0x0b24f2f1	usb_anchor_urb
+EXPORT_SYMBOL_GPL vmlinux 0x0b28defb	kmsg_dump_unregister
 EXPORT_SYMBOL_GPL vmlinux 0x0b7ecadc	net_ns_type_operations
 EXPORT_SYMBOL_GPL vmlinux 0x0b9bea43	platform_device_put
 EXPORT_SYMBOL_GPL vmlinux 0x0ba90684	raw_seq_open
@@ -10319,7 +10319,6 @@ EXPORT_SYMBOL_GPL vmlinux 0x3c5e5c46	__pneigh_lookup
 EXPORT_SYMBOL_GPL vmlinux 0x3c8dd765	ahci_fill_cmd_slot
 EXPORT_SYMBOL_GPL vmlinux 0x3c9390db	pci_vpd_find_tag
 EXPORT_SYMBOL_GPL vmlinux 0x3c942368	profile_event_unregister
-EXPORT_SYMBOL_GPL vmlinux 0x3ca16d23	kmsg_dump_unregister
 EXPORT_SYMBOL_GPL vmlinux 0x3cac21b9	regulator_sync_voltage
 EXPORT_SYMBOL_GPL vmlinux 0x3cd06035	add_input_randomness
 EXPORT_SYMBOL_GPL vmlinux 0x3ce03c49	bus_get_device_klist
@@ -10411,6 +10410,7 @@ EXPORT_SYMBOL_GPL vmlinux 0x46f732de	queue_work_on
 EXPORT_SYMBOL_GPL vmlinux 0x47229b5c	gpio_request
 EXPORT_SYMBOL_GPL vmlinux 0x473feb17	pci_enable_pcie_error_reporting
 EXPORT_SYMBOL_GPL vmlinux 0x4741db42	ps3av_set_audio_mode
+EXPORT_SYMBOL_GPL vmlinux 0x474359b6	kmsg_dump_register
 EXPORT_SYMBOL_GPL vmlinux 0x475f947d	skcipher_geniv_free
 EXPORT_SYMBOL_GPL vmlinux 0x47acddea	ps3_sys_manager_set_wol
 EXPORT_SYMBOL_GPL vmlinux 0x47af92c2	wm831x_reg_write

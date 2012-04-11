@@ -10211,7 +10211,6 @@ EXPORT_SYMBOL_GPL vmlinux 0x026211e2	memory_failure_queue
 EXPORT_SYMBOL_GPL vmlinux 0x026676d0	scsi_schedule_eh
 EXPORT_SYMBOL_GPL vmlinux 0x027b0fad	page_cache_async_readahead
 EXPORT_SYMBOL_GPL vmlinux 0x02da88d0	tpm_remove_hardware
-EXPORT_SYMBOL_GPL vmlinux 0x030d11a8	kmsg_dump_register
 EXPORT_SYMBOL_GPL vmlinux 0x0318f3e0	__inet_hash_nolisten
 EXPORT_SYMBOL_GPL vmlinux 0x03292357	vfs_kern_mount
 EXPORT_SYMBOL_GPL vmlinux 0x0336308a	scsi_nl_add_transport
@@ -10297,6 +10296,7 @@ EXPORT_SYMBOL_GPL vmlinux 0x0ab29d60	__xenbus_register_frontend
 EXPORT_SYMBOL_GPL vmlinux 0x0b07abe2	unshare_fs_struct
 EXPORT_SYMBOL_GPL vmlinux 0x0b195b79	tcp_init_congestion_ops
 EXPORT_SYMBOL_GPL vmlinux 0x0b19ed7c	apei_estatus_check_header
+EXPORT_SYMBOL_GPL vmlinux 0x0b28defb	kmsg_dump_unregister
 EXPORT_SYMBOL_GPL vmlinux 0x0b5e86be	da903x_writes
 EXPORT_SYMBOL_GPL vmlinux 0x0b98b7f5	__atomic_notifier_call_chain
 EXPORT_SYMBOL_GPL vmlinux 0x0bb792c3	ata_sff_hsm_move
@@ -10755,7 +10755,6 @@ EXPORT_SYMBOL_GPL vmlinux 0x3c46b60f	crypto_dequeue_request
 EXPORT_SYMBOL_GPL vmlinux 0x3c917de2	hypervisor_kobj
 EXPORT_SYMBOL_GPL vmlinux 0x3c9390db	pci_vpd_find_tag
 EXPORT_SYMBOL_GPL vmlinux 0x3c942368	profile_event_unregister
-EXPORT_SYMBOL_GPL vmlinux 0x3ca16d23	kmsg_dump_unregister
 EXPORT_SYMBOL_GPL vmlinux 0x3cac21b9	regulator_sync_voltage
 EXPORT_SYMBOL_GPL vmlinux 0x3cc74f8f	class_compat_remove_link
 EXPORT_SYMBOL_GPL vmlinux 0x3cd06035	add_input_randomness
@@ -10870,6 +10869,7 @@ EXPORT_SYMBOL_GPL vmlinux 0x46992748	wm831x_regmap_config
 EXPORT_SYMBOL_GPL vmlinux 0x46b06bab	vring_del_virtqueue
 EXPORT_SYMBOL_GPL vmlinux 0x4708e27f	bsg_request_fn
 EXPORT_SYMBOL_GPL vmlinux 0x47229b5c	gpio_request
+EXPORT_SYMBOL_GPL vmlinux 0x474359b6	kmsg_dump_register
 EXPORT_SYMBOL_GPL vmlinux 0x4757bb79	crypto_shash_finup
 EXPORT_SYMBOL_GPL vmlinux 0x478ef95d	debugfs_create_file
 EXPORT_SYMBOL_GPL vmlinux 0x4792d66e	blk_queue_flush_queueable

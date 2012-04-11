@@ -9603,7 +9603,6 @@ EXPORT_SYMBOL_GPL vmlinux 0x02b3b9d5	bsg_job_done
 EXPORT_SYMBOL_GPL vmlinux 0x02df0ca8	ata_do_dev_read_id
 EXPORT_SYMBOL_GPL vmlinux 0x02e8503a	dm_send_uevents
 EXPORT_SYMBOL_GPL vmlinux 0x02fa2606	d_materialise_unique
-EXPORT_SYMBOL_GPL vmlinux 0x030d11a8	kmsg_dump_register
 EXPORT_SYMBOL_GPL vmlinux 0x0343bdf1	__i2c_board_list
 EXPORT_SYMBOL_GPL vmlinux 0x034eb3b2	module_mutex
 EXPORT_SYMBOL_GPL vmlinux 0x036d5220	init_user_ns
@@ -9668,6 +9667,7 @@ EXPORT_SYMBOL_GPL vmlinux 0x0a8a2eca	ata_pci_bmdma_init_one
 EXPORT_SYMBOL_GPL vmlinux 0x0ad63e94	power_supply_changed
 EXPORT_SYMBOL_GPL vmlinux 0x0aed8460	pci_add_dynid
 EXPORT_SYMBOL_GPL vmlinux 0x0b07abe2	unshare_fs_struct
+EXPORT_SYMBOL_GPL vmlinux 0x0b28defb	kmsg_dump_unregister
 EXPORT_SYMBOL_GPL vmlinux 0x0b2dc9db	simple_attr_write
 EXPORT_SYMBOL_GPL vmlinux 0x0bd3a40b	irq_alloc_generic_chip
 EXPORT_SYMBOL_GPL vmlinux 0x0bd41020	platform_device_add_resources
@@ -10100,7 +10100,6 @@ EXPORT_SYMBOL_GPL vmlinux 0x3c73b903	sata_async_notification
 EXPORT_SYMBOL_GPL vmlinux 0x3c806f0e	ata_bmdma_status
 EXPORT_SYMBOL_GPL vmlinux 0x3c9390db	pci_vpd_find_tag
 EXPORT_SYMBOL_GPL vmlinux 0x3c942368	profile_event_unregister
-EXPORT_SYMBOL_GPL vmlinux 0x3ca16d23	kmsg_dump_unregister
 EXPORT_SYMBOL_GPL vmlinux 0x3ca4e53d	__pm_wakeup_event
 EXPORT_SYMBOL_GPL vmlinux 0x3ca534dd	sata_pmp_port_ops
 EXPORT_SYMBOL_GPL vmlinux 0x3cac21b9	regulator_sync_voltage
@@ -10198,6 +10197,7 @@ EXPORT_SYMBOL_GPL vmlinux 0x46e260dc	user_describe
 EXPORT_SYMBOL_GPL vmlinux 0x47087ec8	scsi_target_unblock
 EXPORT_SYMBOL_GPL vmlinux 0x47229b5c	gpio_request
 EXPORT_SYMBOL_GPL vmlinux 0x472474a5	usb_submit_urb
+EXPORT_SYMBOL_GPL vmlinux 0x474359b6	kmsg_dump_register
 EXPORT_SYMBOL_GPL vmlinux 0x475f3a6b	usb_mon_register
 EXPORT_SYMBOL_GPL vmlinux 0x479aec31	usb_reset_configuration
 EXPORT_SYMBOL_GPL vmlinux 0x47c149ab	queue_delayed_work

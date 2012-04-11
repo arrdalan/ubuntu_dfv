@@ -7729,7 +7729,6 @@ EXPORT_SYMBOL_GPL vmlinux 0x01e1a8de	kgdb_breakpoint
 EXPORT_SYMBOL_GPL vmlinux 0x02385087	inet6_csk_addr2sockaddr
 EXPORT_SYMBOL_GPL vmlinux 0x026ce8f6	md_do_sync
 EXPORT_SYMBOL_GPL vmlinux 0x0277e39f	spi_register_master
-EXPORT_SYMBOL_GPL vmlinux 0x030d11a8	kmsg_dump_register
 EXPORT_SYMBOL_GPL vmlinux 0x0343bdf1	__i2c_board_list
 EXPORT_SYMBOL_GPL vmlinux 0x03e3686c	ata_timing_cycle2mode
 EXPORT_SYMBOL_GPL vmlinux 0x0403c937	usb_autopm_get_interface_no_resume
@@ -7788,6 +7787,7 @@ EXPORT_SYMBOL_GPL vmlinux 0x0a732270	rdev_get_dev
 EXPORT_SYMBOL_GPL vmlinux 0x0aaffc51	usb_hub_clear_tt_buffer
 EXPORT_SYMBOL_GPL vmlinux 0x0ac14fd8	find_vpid
 EXPORT_SYMBOL_GPL vmlinux 0x0b07abe2	unshare_fs_struct
+EXPORT_SYMBOL_GPL vmlinux 0x0b28defb	kmsg_dump_unregister
 EXPORT_SYMBOL_GPL vmlinux 0x0b2b71a1	ata_port_freeze
 EXPORT_SYMBOL_GPL vmlinux 0x0b2db08a	ata_sas_port_destroy
 EXPORT_SYMBOL_GPL vmlinux 0x0b44c55f	tps6586x_write
@@ -8172,7 +8172,6 @@ EXPORT_SYMBOL_GPL vmlinux 0x3c590a91	ata_eh_freeze_port
 EXPORT_SYMBOL_GPL vmlinux 0x3c77f631	sdhci_resume_host
 EXPORT_SYMBOL_GPL vmlinux 0x3c819493	attribute_container_register
 EXPORT_SYMBOL_GPL vmlinux 0x3c942368	profile_event_unregister
-EXPORT_SYMBOL_GPL vmlinux 0x3ca16d23	kmsg_dump_unregister
 EXPORT_SYMBOL_GPL vmlinux 0x3cac21b9	regulator_sync_voltage
 EXPORT_SYMBOL_GPL vmlinux 0x3cd06035	add_input_randomness
 EXPORT_SYMBOL_GPL vmlinux 0x3cfedb3f	register_pm_notifier
@@ -8251,6 +8250,7 @@ EXPORT_SYMBOL_GPL vmlinux 0x46f779eb	crypto_alloc_ahash
 EXPORT_SYMBOL_GPL vmlinux 0x46fb6128	usb_reset_endpoint
 EXPORT_SYMBOL_GPL vmlinux 0x47229b5c	gpio_request
 EXPORT_SYMBOL_GPL vmlinux 0x4738d85e	inet6_sk_rebuild_header
+EXPORT_SYMBOL_GPL vmlinux 0x474359b6	kmsg_dump_register
 EXPORT_SYMBOL_GPL vmlinux 0x47ae9bce	usb_alloc_streams
 EXPORT_SYMBOL_GPL vmlinux 0x47bcd4c1	securityfs_remove
 EXPORT_SYMBOL_GPL vmlinux 0x47c149ab	queue_delayed_work
