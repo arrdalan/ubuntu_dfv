@@ -19,6 +19,7 @@ WGET="wget --quiet -c"
 abidir="`pwd`/$DEBIAN/abi/$verfull"
 tmpdir="`pwd`/abi-tmp-$verfull"
 origdir="`pwd`"
+fwinfo=$abidir/fwinfo
 
 test -d $tmpdir || mkdir $tmpdir
 
@@ -45,6 +46,9 @@ getall() {
 		if [ "$?" = "0" ]; then
 			echo -n "extracting..."
 			dpkg-deb --extract $filename tmp
+			find tmp -name "*.ko" | while read f; do
+				modinfo $f | grep ^firmware >> $fwinfo
+			done
 			if [ -f tmp/boot/abi-* ]; then
 				mv tmp/boot/abi-* $abidir/$arch/$sub
 			else
@@ -91,5 +95,8 @@ compilers=`cat $abidir/*/*.compiler | sort -u | wc -l`
 if [ "$compilers" != 1 ]; then
 	echo "WARNING: inconsistant compiler versions detected" 1>&2
 fi
+
+sort < $fwinfo | uniq > fwinfo.tmp
+mv fwinfo.tmp $fwinfo
 
 rmdir $tmpdir
