@@ -9,6 +9,7 @@ hid-dell ?
 hid-ezkey ?
 hid-gyration ?
 hid-logitech ?
+hid-logitech-dj ?
 hid-microsoft ?
 hid-monterey ?
 hid-petalynx ?
