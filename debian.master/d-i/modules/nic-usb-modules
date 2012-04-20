@@ -11,6 +11,7 @@ rt73usb ?
 rt2570 ?
 rt2800usb ?
 rt2x00usb ?
+rtl8187 ?
 cdc_ether ?
 asix ?
 cdc_eem ?

@@ -18,6 +18,9 @@ rt2800lib ?
 # Atheros library (since drivers are split across nic-modules/nic-usb-modules)
 ath ?
 
+# EEPROM driver used by rtl818x (both pci and usb versions)
+eeprom_93cx6 ?
+
 # Wireless 802.11 modules
 lib80211 ?
 cfg80211 ?
