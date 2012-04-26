@@ -7,3 +7,4 @@ extern void highbank_lluart_map_io(void);
 static inline void highbank_lluart_map_io(void) {}
 #endif
 
+extern void highbank_smc1(int fn, int arg);
