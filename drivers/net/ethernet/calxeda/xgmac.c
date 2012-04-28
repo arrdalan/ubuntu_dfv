@@ -210,7 +210,7 @@
 #define DMA_INTR_ENA_TIE	0x00000001	/* Transmit Interrupt */
 
 #define DMA_INTR_NORMAL		(DMA_INTR_ENA_NIE | DMA_INTR_ENA_RIE | \
-				 DMA_INTR_ENA_TUE)
+				 DMA_INTR_ENA_TUE | DMA_INTR_ENA_TIE)
 
 #define DMA_INTR_ABNORMAL	(DMA_INTR_ENA_AIE | DMA_INTR_ENA_FBE | \
 				 DMA_INTR_ENA_RWE | DMA_INTR_ENA_RSE | \
@@ -933,6 +933,7 @@ static void xgmac_tx_err(struct xgmac_priv *priv)
 	desc_init_tx_desc(priv->dma_tx, DMA_TX_RING_SZ);
 	priv->tx_tail = 0;
 	priv->tx_head = 0;
+	writel(priv->dma_tx_phy, priv->base + XGMAC_DMA_TX_BASE_ADDR);
 	writel(reg | DMA_CONTROL_ST, priv->base + XGMAC_DMA_CONTROL);
 
 	writel(DMA_STATUS_TU | DMA_STATUS_TPS | DMA_STATUS_NIS | DMA_STATUS_AIS,
@@ -972,7 +973,7 @@ static int xgmac_hw_init(struct net_device *dev)
 	writel(DMA_INTR_DEFAULT_MASK, ioaddr + XGMAC_DMA_INTR_ENA);
 
 	/* XGMAC requires AXI bus init. This is a 'magic number' for now */
-	writel(0x000100E, ioaddr + XGMAC_DMA_AXI_BUS);
+	writel(0x0077000E, ioaddr + XGMAC_DMA_AXI_BUS);
 
 	ctrl |= XGMAC_CONTROL_DDIC | XGMAC_CONTROL_JE | XGMAC_CONTROL_ACS |
 		XGMAC_CONTROL_CAR;
