@@ -380,25 +380,27 @@ endif
 #
 # per-architecture packages
 #
+builddirpa = $(builddir)/tools-perarch
+
 $(stampdir)/stamp-prepare-perarch:
 	@echo "Preparing perarch ..."
 ifeq ($(do_tools),true)
-	rm -rf $(builddir)/tools
-	install -d $(builddir)/tools
-	for i in *; do ln -s $(CURDIR)/$$i $(builddir)/tools/; done
-	rm $(builddir)/tools/tools
-	rsync -a tools/ $(builddir)/tools/tools/
+	rm -rf $(builddirpa)/tools
+	install -d $(builddirpa)/tools
+	for i in *; do ln -s $(CURDIR)/$$i $(builddirpa)/tools/; done
+	rm $(builddirpa)/tools/tools
+	rsync -a tools/ $(builddirpa)/tools/tools/
 endif
 	touch $@
 
 $(stampdir)/stamp-build-perarch: $(stampdir)/stamp-prepare-perarch
 ifeq ($(do_tools),true)
-	cd $(builddir)/tools/tools/perf && \
+	cd $(builddirpa)/tools/tools/perf && \
 		make HAVE_CPLUS_DEMANGLE=1 CROSS_COMPILE=$(CROSS_COMPILE) $(conc_level)
 	if [ "$(arch)" = "amd64" ] || [ "$(arch)" = "i386" ]; then \
-		cd $(builddir)/tools/tools/power/x86/x86_energy_perf_policy && make CROSS_COMPILE=$(CROSS_COMPILE); \
-		cd $(builddir)/tools/tools/power/x86/turbostat && make CROSS_COMPILE=$(CROSS_COMPILE); \
-		cd $(builddir)/tools/tools/hv && make CROSS_COMPILE=$(CROSS_COMPILE) CFLAGS=-I../../include; \
+		cd $(builddirpa)/tools/tools/power/x86/x86_energy_perf_policy && make CROSS_COMPILE=$(CROSS_COMPILE); \
+		cd $(builddirpa)/tools/tools/power/x86/turbostat && make CROSS_COMPILE=$(CROSS_COMPILE); \
+		cd $(builddirpa)/tools/tools/hv && make CROSS_COMPILE=$(CROSS_COMPILE) CFLAGS=-I../../include; \
 	fi
 endif
 	@touch $@
@@ -408,15 +410,15 @@ install-perarch: $(stampdir)/stamp-build-perarch
 	# Add the tools.
 ifeq ($(do_tools),true)
 	install -d $(toolspkgdir)/usr/bin
-	install -s -m755 $(builddir)/tools/tools/perf/perf \
+	install -s -m755 $(builddirpa)/tools/tools/perf/perf \
 		$(toolspkgdir)/usr/bin/perf_$(abi_release)
 	if [ "$(arch)" = "amd64" ] || [ "$(arch)" = "i386" ]; then \
-		install -s -m755 $(builddir)/tools/tools/power/x86/x86_energy_perf_policy/x86_energy_perf_policy \
+		install -s -m755 $(builddirpa)/tools/tools/power/x86/x86_energy_perf_policy/x86_energy_perf_policy \
 			$(toolspkgdir)/usr/bin/x86_energy_perf_policy_$(abi_release); \
-		install -s -m755 $(builddir)/tools/tools/power/x86/turbostat/turbostat \
+		install -s -m755 $(builddirpa)/tools/tools/power/x86/turbostat/turbostat \
 			$(toolspkgdir)/usr/bin/turbostat_$(abi_release); \
 		install -d $(toolspkgdir)/usr/sbin; \
-		install -s -m755 $(builddir)/tools/tools/hv/hv_kvp_daemon \
+		install -s -m755 $(builddirpa)/tools/tools/hv/hv_kvp_daemon \
 			$(toolspkgdir)/usr/sbin/hv_kvp_daemon_$(abi_release); \
 	fi
 endif
