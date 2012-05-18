@@ -6,7 +6,7 @@ repo_list=(
 )
 
 getall armel omap
-getall armhf omap
+getall armhf omap highbank
 getall amd64 generic virtual
 getall i386 generic generic-pae virtual
 
