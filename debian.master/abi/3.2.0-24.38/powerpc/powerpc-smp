@@ -4962,6 +4962,7 @@ EXPORT_SYMBOL vmlinux 0x67d5c47a	of_gpio_simple_xlate
 EXPORT_SYMBOL vmlinux 0x681fda34	elevator_init
 EXPORT_SYMBOL vmlinux 0x682a27b9	tcf_destroy_chain
 EXPORT_SYMBOL vmlinux 0x68370959	check_disk_change
+EXPORT_SYMBOL vmlinux 0x683f0ed5	locks_delete_block
 EXPORT_SYMBOL vmlinux 0x6849a15f	flex_array_clear
 EXPORT_SYMBOL vmlinux 0x684fb16c	ethtool_op_set_flags
 EXPORT_SYMBOL vmlinux 0x68609857	complete_and_exit

@@ -5912,6 +5912,7 @@ EXPORT_SYMBOL vmlinux 0x992377a1	register_8022_client
 EXPORT_SYMBOL vmlinux 0x9924ceb6	init_special_inode
 EXPORT_SYMBOL vmlinux 0x99525e3a	vfsmount_lock_local_unlock
 EXPORT_SYMBOL vmlinux 0x995fbe61	devm_ioport_map
+EXPORT_SYMBOL vmlinux 0x997378e8	locks_delete_block
 EXPORT_SYMBOL vmlinux 0x99827fcf	pci_bus_write_config_dword
 EXPORT_SYMBOL vmlinux 0x9994c0ca	ps2_is_keyboard_id
 EXPORT_SYMBOL vmlinux 0x999e8297	vfree

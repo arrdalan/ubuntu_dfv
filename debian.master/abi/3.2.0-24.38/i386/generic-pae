@@ -5877,6 +5877,7 @@ EXPORT_SYMBOL vmlinux 0x8d5aa2cc	do_splice_from
 EXPORT_SYMBOL vmlinux 0x8d6f81b4	__div64_32
 EXPORT_SYMBOL vmlinux 0x8d839479	gnet_stats_start_copy_compat
 EXPORT_SYMBOL vmlinux 0x8d8d96c6	acpi_get_sleep_type_data
+EXPORT_SYMBOL vmlinux 0x8d9e62fd	locks_delete_block
 EXPORT_SYMBOL vmlinux 0x8da1a3cb	acpi_remove_interface
 EXPORT_SYMBOL vmlinux 0x8dc6e564	restore_processor_state
 EXPORT_SYMBOL vmlinux 0x8de5ba3b	lock_sock_nested

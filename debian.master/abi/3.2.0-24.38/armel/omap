@@ -4009,6 +4009,7 @@ EXPORT_SYMBOL vmlinux 0x7ad88abe	omap_dss_stop_device
 EXPORT_SYMBOL vmlinux 0x7ae7f8d5	mmc_erase
 EXPORT_SYMBOL vmlinux 0x7afa89fc	vsnprintf
 EXPORT_SYMBOL vmlinux 0x7b03848a	verify_mem_not_deleted
+EXPORT_SYMBOL vmlinux 0x7b152fd7	locks_delete_block
 EXPORT_SYMBOL vmlinux 0x7b7910f3	scsi_execute
 EXPORT_SYMBOL vmlinux 0x7b87dbf7	bio_integrity_split
 EXPORT_SYMBOL vmlinux 0x7b9addac	pfifo_qdisc_ops

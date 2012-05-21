@@ -3652,6 +3652,7 @@ EXPORT_SYMBOL vmlinux 0x03ce4164	__dst_free
 EXPORT_SYMBOL vmlinux 0x03d52588	napi_gro_frags
 EXPORT_SYMBOL vmlinux 0x03dc1461	seq_release_private
 EXPORT_SYMBOL vmlinux 0x03f512bb	mnt_pin
+EXPORT_SYMBOL vmlinux 0x03fc7ab7	locks_delete_block
 EXPORT_SYMBOL vmlinux 0x03fd2571	vm_unmap_ram
 EXPORT_SYMBOL vmlinux 0x0422fe4a	inet_csk_timer_bug_msg
 EXPORT_SYMBOL vmlinux 0x0487f831	fb_find_best_display

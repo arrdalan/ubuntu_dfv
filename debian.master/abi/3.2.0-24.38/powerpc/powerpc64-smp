@@ -4741,6 +4741,7 @@ EXPORT_SYMBOL vmlinux 0x55cd7d21	__lru_cache_add
 EXPORT_SYMBOL vmlinux 0x55d13582	xfrm_register_type
 EXPORT_SYMBOL vmlinux 0x55fb896d	tcp_v4_md5_lookup
 EXPORT_SYMBOL vmlinux 0x5600904f	fb_get_color_depth
+EXPORT_SYMBOL vmlinux 0x5609f79b	locks_delete_block
 EXPORT_SYMBOL vmlinux 0x5614b010	xfrm_policy_walk_done
 EXPORT_SYMBOL vmlinux 0x5618ccf8	inet6_unregister_protosw
 EXPORT_SYMBOL vmlinux 0x5635a60a	vmalloc_user

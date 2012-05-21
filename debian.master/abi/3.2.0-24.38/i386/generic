@@ -6448,6 +6448,7 @@ EXPORT_SYMBOL vmlinux 0xb1e7bf51	dqput
 EXPORT_SYMBOL vmlinux 0xb1ea27de	pci_bus_type
 EXPORT_SYMBOL vmlinux 0xb219d56c	wbinvd_on_cpu
 EXPORT_SYMBOL vmlinux 0xb236726c	simple_dir_operations
+EXPORT_SYMBOL vmlinux 0xb23ab6b5	locks_delete_block
 EXPORT_SYMBOL vmlinux 0xb2682405	utf8_to_utf32
 EXPORT_SYMBOL vmlinux 0xb2744b36	down_write_trylock
 EXPORT_SYMBOL vmlinux 0xb2911cf5	tcp_sync_mss
