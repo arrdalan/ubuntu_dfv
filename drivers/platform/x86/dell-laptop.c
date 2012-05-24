@@ -119,6 +119,21 @@ static const struct dmi_system_id __initdata dell_device_table[] = {
 };
 
 static struct dmi_system_id __devinitdata dell_blacklist[] = {
+	/* dell_laptop breaks rfkill behavior (LP: #901410) */
+	{
+		.ident = "Dell XPS 13z",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
+			DMI_MATCH(DMI_PRODUCT_NAME, "Dell System XPS L321X"),
+		},
+	},
+	{
+		.ident = "Dell XPS 15",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
+			DMI_MATCH(DMI_PRODUCT_NAME, "Dell System XPS L502X"),
+		},
+	},
 	/* Supported by compal-laptop */
 	{
 		.ident = "Dell Mini 9",
