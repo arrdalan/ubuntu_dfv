@@ -332,7 +332,7 @@ sub really_move_image {
                    " $target");
   if ($ret) {
     die("Failed to move " . $src_dir . "$target to "
-        . $dest_dir . "$target.\n");
+        . $dest_dir . "$target");
   }
   # Ok, now we may clobber the previous .old files
   if (-e "$target.$$") {
@@ -367,13 +367,13 @@ sub really_reverse_link {
   if ($use_hard_links =~ m/YES/i) {
     link($Old . "$link_name", $src_dir . "$link_name") ||
       die("Failed to link " . $dest_dir . "$link_name to " . $src_dir . 
-          "$link_name .\n");
+          "$link_name:$!");
     warn "ln " . $Old . "$link_name " . $src_dir . "$link_name"  if $DEBUG;
   }
   else {
     symlink($Old . "$link_name", $src_dir . "$link_name") ||
       die("Failed to symbolic-link " . $dest_dir . "$link_name to " . $src_dir
-          . "$link_name : $!\n");
+          . "$link_name:$!");
     warn "ln -s " . $Old . "$link_name " . $src_dir . "$link_name" if $DEBUG;
   }
 }
@@ -512,7 +512,7 @@ sub really_move_link {
     if (! link("${Old}${image_name}", "$kimage")) {
       rename("$kimage.$$", "$kimage");
       die("Failed to link ${Old}${image_name} to " .
-          "${image_dest}${kimage}.\n");
+          "${image_dest}${kimage}:$!");
     }
   } 
   else {
@@ -520,7 +520,7 @@ sub really_move_link {
     if (! symlink("${Old}${image_name}", "$kimage")) {
       rename("$kimage.$$", "$kimage");
       die("Failed to symbolic-link ${Old}${image_name} to " .
-          "${image_dest}${kimage}: $!\n");
+          "${image_dest}${kimage}:$!");
     }
   }
 
@@ -555,7 +555,7 @@ sub handle_missing_link {
                      "$image_name "   . " $kimage");
     if ($ret) {
       die("Failed to copy " . $realimageloc . "$image_name to "
-          . $image_dest . "$kimage .\n");
+          . $image_dest . "$kimage");
     }
   } 
   elsif ($reverse_symlink) {
@@ -564,7 +564,7 @@ sub handle_missing_link {
                      . "$kimage");
     if ($ret) {
       die("Failed to move " . $realimageloc . "$image_name to "
-          . $image_dest . "$kimage .\n");
+          . $image_dest . "$kimage");
     }
   } 
   else {
@@ -612,7 +612,7 @@ sub handle_missing_link {
     $Old ="" if $rel_path =~ m/^\s*$/o;
 
     symlink($Old . "$Name", "$Link_Dest") ||
-      die("Failed to symbolic-link ${Old}$Name to $Link_Dest: $!\n");
+      die("Failed to symbolic-link ${Old}$Name to $Link_Dest:$!");
     warn "ln -s ${Old}$Name $Link_Dest" if $DEBUG;
 
   }
@@ -647,7 +647,7 @@ sub handle_non_symlinks {
         warn "mv $kimage.$$ $kimage" if $DEBUG;
       }
       die("Failed to copy " . $realimageloc . "$image_name to "
-          . $image_dest . "$kimage .\n");
+          . $image_dest . "$kimage");
     }
   }
   ##,#### 
@@ -663,7 +663,7 @@ sub handle_non_symlinks {
         warn "mv $kimage.$$ $kimage" if $DEBUG;
       }
       die("Failed to move " . $realimageloc . "$image_name to "
-          . $image_dest . "$kimage .\n");
+          . $image_dest . "$kimage");
     }
     my $Old = $image_dest;
     if (test_relative ('Old Dir' => $Old, 'New Dir' => $realimageloc,
@@ -711,7 +711,7 @@ sub handle_non_symlinks {
       warn "mv $kimage.$$ $kimage" if $DEBUG;
       rename("$kimage.$$", "$kimage");
       die("Failed to link " . $realimageloc . "$image_name to "
-          . $image_dest . "$kimage .\n");
+          . $image_dest . "$kimage");
     }
   }
   ##,####
@@ -728,7 +728,7 @@ sub handle_non_symlinks {
         rename("$kimage.$$", "$kimage");
       }
       die("Failed to copy " . $realimageloc . "$image_name to "
-          . $image_dest . "$kimage .\n");
+          . $image_dest . "$kimage");
     }
   }
   # Ok, now we may clobber the previous .old file
