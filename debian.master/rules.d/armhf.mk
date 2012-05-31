@@ -10,5 +10,3 @@ no_dumpfile	= true
 
 loader		= grub
 
-skipabi		= true
-skipmodule	= true
