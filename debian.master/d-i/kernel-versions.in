@@ -9,6 +9,7 @@ i386	PKGVER-ABINUM	virtual		PKGVER-ABINUM-virtual		-
 armel	PKGVER-ABINUM	omap		PKGVER-ABINUM-omap		-
 
 armhf	PKGVER-ABINUM	omap		PKGVER-ABINUM-omap		-
+armhf	PKGVER-ABINUM	highbank	PKGVER-ABINUM-highbank		-
 
 # Ports
 # arch	version		flavour		installedname			suffix	bdep
