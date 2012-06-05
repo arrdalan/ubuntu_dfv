@@ -142,7 +142,7 @@ check_lazy_exec_limit(int cpu, struct pt_regs *regs, long error_code)
 		for (vma = current->mm->mmap; vma; vma = vma->vm_next)
 			if ((vma->vm_flags & VM_EXEC) && (vma->vm_end > limit))
 				limit = vma->vm_end;
-		vma = get_gate_vma(current);
+		vma = get_gate_vma(current->mm);
 		if (vma && (vma->vm_flags & VM_EXEC) && (vma->vm_end > limit))
 			limit = vma->vm_end;
 		spin_unlock(&current->mm->page_table_lock);
