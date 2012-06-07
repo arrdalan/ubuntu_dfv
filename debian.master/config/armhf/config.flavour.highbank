@@ -87,7 +87,6 @@ CONFIG_ENABLE_WARN_DEPRECATED=y
 # CONFIG_ETHOC is not set
 # CONFIG_EVM is not set
 # CONFIG_EXPERT is not set
-CONFIG_EXPORTFS=m
 # CONFIG_EZX_PCAP is not set
 # CONFIG_FANOTIFY is not set
 # CONFIG_FB_ARMCLCD is not set
@@ -100,7 +99,6 @@ CONFIG_FB_CFB_IMAGEBLIT=m
 # CONFIG_FB_SM7XX is not set
 # CONFIG_FB_SMSCUFX is not set
 # CONFIG_FB_UDL is not set
-# CONFIG_FHANDLE is not set
 # CONFIG_FONTS is not set
 # CONFIG_FPE_NWFPE is not set
 # CONFIG_FSCACHE is not set
