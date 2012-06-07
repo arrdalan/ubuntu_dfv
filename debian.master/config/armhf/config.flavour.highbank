@@ -43,8 +43,6 @@ CONFIG_CONNECTOR=m
 CONFIG_CORE_DUMP_DEFAULT_ELF_HEADERS=y
 # CONFIG_CPU_IDLE is not set
 # CONFIG_CRASH_DUMP is not set
-# CONFIG_CRC7 is not set
-# CONFIG_CRC8 is not set
 # CONFIG_CUSE is not set
 # CONFIG_DE600 is not set
 # CONFIG_DE620 is not set
