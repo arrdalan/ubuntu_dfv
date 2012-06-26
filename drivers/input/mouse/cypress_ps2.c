@@ -22,7 +22,9 @@
 
 #define CYTP_DBG 1
 #if CYTP_DBG
-static int debug_level = 1;
+static int debug_level;
+module_param_named(cy_debug, debug_level, int, 0644);
+MODULE_PARM_DESC(cy_debug, "Set CyPS/2 debug output level (0, 1, or 2)");
 #define cytp_dbg(fmt, ...)  \
 	do {  \
 		if (cytp && debug_level)  \
