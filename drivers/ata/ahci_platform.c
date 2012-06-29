@@ -18,6 +18,7 @@
 #include <linux/init.h>
 #include <linux/interrupt.h>
 #include <linux/device.h>
+#include <linux/of_device.h>
 #include <linux/platform_device.h>
 #include <linux/libata.h>
 #include <linux/ahci_platform.h>
@@ -26,6 +27,7 @@
 enum ahci_type {
 	AHCI,		/* standard platform ahci */
 	IMX53_AHCI,	/* ahci on i.mx53 */
+	CALXEDA_AHCI,
 };
 
 static struct platform_device_id ahci_devtype[] = {
@@ -41,6 +43,50 @@ static struct platform_device_id ahci_devtype[] = {
 };
 MODULE_DEVICE_TABLE(platform, ahci_devtype);
 
+static int ahci_calxeda_hardreset(struct ata_link *link, unsigned int *class,
+				unsigned long deadline)
+{
+	const unsigned long *timing = sata_ehc_deb_timing(&link->eh_context);
+	struct ata_port *ap = link->ap;
+	struct ahci_port_priv *pp = ap->private_data;
+	u8 *d2h_fis = pp->rx_fis + RX_FIS_D2H_REG;
+	struct ata_taskfile tf;
+	bool online;
+	u32 sstatus;
+	int rc;
+	int retry = 10;
+
+	ahci_stop_engine(ap);
+
+	/* clear D2H reception area to properly wait for D2H FIS */
+	ata_tf_init(link->device, &tf);
+	tf.command = 0x80;
+	ata_tf_to_fis(&tf, 0, 0, d2h_fis);
+
+	do {
+		rc = sata_link_hardreset(link, timing, deadline, &online, NULL);
+
+		/* If the status is 1, we are connected, but the link did not
+		 * come up. So retry resetting the link again.
+		 */
+		if (sata_scr_read(link, SCR_STATUS, &sstatus))
+			break;
+		if (!(sstatus & 0x3))
+			break;
+	} while (!online && retry--);
+
+	ahci_start_engine(ap);
+
+	if (online)
+		*class = ahci_dev_classify(ap);
+
+	return rc;
+}
+
+static struct ata_port_operations ahci_calxeda_ops = {
+	.inherits		= &ahci_ops,
+	.hardreset		= ahci_calxeda_hardreset,
+};
 
 static const struct ata_port_info ahci_port_info[] = {
 	/* by features */
@@ -56,26 +102,45 @@ static const struct ata_port_info ahci_port_info[] = {
 		.udma_mask	= ATA_UDMA6,
 		.port_ops	= &ahci_pmp_retry_srst_ops,
 	},
+	[CALXEDA_AHCI] = {
+		.flags		= AHCI_FLAG_COMMON,
+		.pio_mask	= ATA_PIO4,
+		.udma_mask	= ATA_UDMA6,
+		.port_ops	= &ahci_calxeda_ops,
+	},
 };
 
 static struct scsi_host_template ahci_platform_sht = {
 	AHCI_SHT("ahci_platform"),
 };
 
+static const struct of_device_id ahci_of_match[] = {
+	{ .compatible = "calxeda,hb-ahci", .data = &ahci_port_info[CALXEDA_AHCI], },
+	{},
+};
+MODULE_DEVICE_TABLE(of, ahci_of_match);
+
 static int __init ahci_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
 	struct ahci_platform_data *pdata = dev_get_platdata(dev);
 	const struct platform_device_id *id = platform_get_device_id(pdev);
-	struct ata_port_info pi = ahci_port_info[id ? id->driver_data : 0];
+	struct ata_port_info pi;
 	const struct ata_port_info *ppi[] = { &pi, NULL };
 	struct ahci_host_priv *hpriv;
 	struct ata_host *host;
 	struct resource *mem;
+	const struct of_device_id *match;
 	int irq;
 	int n_ports;
 	int i;
 	int rc;
+
+	match = of_match_device(ahci_of_match, dev);
+	if (match)
+		pi = *((struct ata_port_info *)match->data);
+	else
+		pi = ahci_port_info[id ? id->driver_data : 0];
 
 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	if (!mem) {
@@ -201,12 +266,6 @@ static int __devexit ahci_remove(struct platform_device *pdev)
 
 	return 0;
 }
-
-static const struct of_device_id ahci_of_match[] = {
-	{ .compatible = "calxeda,hb-ahci", },
-	{},
-};
-MODULE_DEVICE_TABLE(of, ahci_of_match);
 
 static struct platform_driver ahci_driver = {
 	.remove = __devexit_p(ahci_remove),
