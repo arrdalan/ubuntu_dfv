@@ -6,6 +6,8 @@ repo_list=(
 	"http://ppa.launchpad.net/canonical-kernel-team/ppa/ubuntu/pool/main/l/linux"
 )
 
+package_prefixes linux-image linux-image-extra
+
 getall armel omap
 getall armhf omap highbank
 getall amd64 generic virtual
