@@ -265,6 +265,7 @@ chnl_net
 cifs
 clip
 cls_basic
+cls_cgroup
 cls_flow
 cls_fw
 cls_route
