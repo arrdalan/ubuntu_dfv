@@ -4868,6 +4868,72 @@ static void alc269_fixup_quanta_mute(struct hda_codec *codec,
 	spec->automute_hook = alc269_quanta_automute;
 }
 
+/* Hide the connection of speakers and headphone pins to specific DACs,
+ * so we prevent autoconfig to make headphone pin share the same DAC
+ * with the first set of speakers, which in the end makes the mixer lack
+ * a headphone volume control (as speaker volume slider controls the DAC
+ * amp, and the code prevents adding another volume slider to do the
+ * same thing). This means user space (pulse), depending on
+ * configuration, can foolish think that it can turn the speaker volume
+ * down to 0, while in practice it's also turning down the volume for
+ * headphone pin... http://bugs.launchpad.net/bugs/994685 */
+static void alc269vb_fixup_restrict_bass(struct hda_codec *codec,
+					 const struct alc_fixup *fix,
+					 int action)
+{
+	unsigned int defcfg, i;
+	short dev, con;
+	struct alc_spec *spec = codec->spec;
+	int spk_nids[] = { 0x14, 0x1a };
+	int clear_nids[] = { 0x17, 0x18, 0x1b };
+	static const struct snd_kcontrol_new alc269vb_bass_switch[] = {
+		HDA_CODEC_MUTE("Bass Speaker Playback Switch", 0x1a, 0x0, HDA_OUTPUT),
+		{ }
+	};
+
+	/* Do some sanity checks first. If we don't find pins where they
+	 * should be, just do nothing */
+	defcfg = snd_hda_codec_get_pincfg(codec, 0x21);
+	if (get_defcfg_device(defcfg) != AC_JACK_HP_OUT ||
+	    get_defcfg_connect(defcfg) == AC_JACK_PORT_NONE)
+		return;
+	for (i = 0; i < ARRAY_SIZE(spk_nids); i++) {
+		defcfg = snd_hda_codec_get_pincfg(codec, spk_nids[i]);
+		dev = get_defcfg_device(defcfg);
+		con = get_defcfg_connect(defcfg);
+		if (dev == AC_JACK_LINE_OUT) {
+			if (con == AC_JACK_PORT_FIXED)
+				dev = AC_JACK_SPEAKER;
+		}
+		if (dev != AC_JACK_SPEAKER || con == AC_JACK_PORT_NONE)
+			return;
+	}
+	for (i = 0; i < ARRAY_SIZE(clear_nids); i++) {
+		defcfg = snd_hda_codec_get_pincfg(codec, clear_nids[i]);
+		dev = get_defcfg_device(defcfg);
+		con = get_defcfg_connect(defcfg);
+		if ((dev == AC_JACK_SPEAKER || dev == AC_JACK_LINE_OUT ||
+		     dev == AC_JACK_HP_OUT) && con != AC_JACK_PORT_NONE)
+			return;
+	}
+
+	if (action == ALC_FIXUP_ACT_PRE_PROBE) {
+		/* fake the connections during parsing the tree */
+		hda_nid_t conn1[1] = { 0x0c };
+		hda_nid_t conn2[1] = { 0x0d };
+		snd_hda_override_conn_list(codec, 0x14, 1, conn2);
+		snd_hda_override_conn_list(codec, 0x1a, 1, conn2);
+		snd_hda_override_conn_list(codec, 0x21, 1, conn1);
+	} else if (action == ALC_FIXUP_ACT_PROBE) {
+		/* restore the connections */
+		hda_nid_t conn[2] = { 0x0c, 0x0d };
+		snd_hda_override_conn_list(codec, 0x14, 2, conn);
+		snd_hda_override_conn_list(codec, 0x1a, 2, conn);
+		snd_hda_override_conn_list(codec, 0x21, 2, conn);
+		add_mixer(spec, alc269vb_bass_switch);
+	}
+}
+
 enum {
 	ALC269_FIXUP_SONY_VAIO,
 	ALC275_FIXUP_SONY_VAIO_GPIO2,
@@ -4885,6 +4951,7 @@ enum {
 	ALC269_FIXUP_DMIC,
 	ALC269VB_FIXUP_AMIC,
 	ALC269VB_FIXUP_DMIC,
+	ALC269VB_FIXUP_RESTRICT_BASS,
 };
 
 static const struct alc_fixup alc269_fixups[] = {
@@ -5005,6 +5072,10 @@ static const struct alc_fixup alc269_fixups[] = {
 			{ }
 		},
 	},
+	[ALC269VB_FIXUP_RESTRICT_BASS] = {
+		.type = ALC_FIXUP_FUNC,
+		.v.func = alc269vb_fixup_restrict_bass,
+	},
 };
 
 static const struct snd_pci_quirk alc269_fixup_tbl[] = {
@@ -5020,6 +5091,7 @@ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
 	SND_PCI_QUIRK(0x104d, 0x9084, "Sony VAIO", ALC275_FIXUP_SONY_HWEQ),
 	SND_PCI_QUIRK_VENDOR(0x104d, "Sony VAIO", ALC269_FIXUP_SONY_VAIO),
 	SND_PCI_QUIRK(0x1028, 0x0470, "Dell M101z", ALC269_FIXUP_DELL_M101Z),
+	SND_PCI_QUIRK(0x1028, 0x04d8, "Dell Inspiron 17", ALC269VB_FIXUP_RESTRICT_BASS),
 	SND_PCI_QUIRK_VENDOR(0x1025, "Acer Aspire", ALC271_FIXUP_DMIC),
 	SND_PCI_QUIRK(0x10cf, 0x1475, "Lifebook", ALC269_FIXUP_LIFEBOOK),
 	SND_PCI_QUIRK(0x17aa, 0x20f2, "Thinkpad SL410/510", ALC269_FIXUP_SKU_IGNORE),
