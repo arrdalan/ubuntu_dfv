@@ -1,10 +1,12 @@
 #!/bin/bash
 
-. debian/debian.env
-
 if [ "$#" != "2" ]; then
 	echo "Usage: $0 <release> <revision>" 1>&2
 	exit 1
+fi
+
+if [ "$DEBIAN" = "" ]; then
+	. debian/debian.env
 fi
 
 ver=$1
@@ -14,7 +16,7 @@ abi=$(echo $revision | awk -F. '{print $1}')
 verabi=$ver-$abi
 verfull=$ver-$revision
 
-WGET="wget --quiet -c"
+WGET="wget --tries=1 --timeout=10 --quiet -c"
 
 abidir="`pwd`/$DEBIAN/abi/$verfull"
 tmpdir="`pwd`/abi-tmp-$verfull"
@@ -38,7 +40,7 @@ getall() {
 			echo "Exists: $sub"
 			continue
 		fi
-		echo -n "Fetching $sub..."
+		echo -n "Fetching $sub($arch)..."
 		prefixes=""
 		filenames=""
 		cd $tmpdir
@@ -76,7 +78,10 @@ getall() {
 				$abidir/$arch/$sub.modules
 			(
 				cd tmp;
-				ko=`find lib/modules/$verabi-$sub/kernel -name '*.ko' | head -1`
+				# Prevent exposing some errors when called by python scripts. SIGPIPE seems to get
+				# exposed when using the `find ...` form of the command.
+				ko=$(find lib/modules/$verabi-$sub/kernel \
+					-name '*.ko' | head -1)
 				readelf -p .comment "$ko" | awk '
 					($1 == "[") {
 						printf("%s", $3);
