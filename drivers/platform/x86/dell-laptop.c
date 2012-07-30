@@ -127,6 +127,14 @@ static struct dmi_system_id __devinitdata dell_blacklist[] = {
 			DMI_MATCH(DMI_PRODUCT_NAME, "Dell System XPS L321X"),
 		},
 	},
+	/* dell_laptop breaks rfkill behavior (LP: #1030957) */
+	{
+		.ident = "Dell XPS 13z",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
+			DMI_MATCH(DMI_PRODUCT_NAME, "Dell System XPS L322X"),
+		},
+	},
 	{
 		.ident = "Dell XPS 15",
 		.matches = {
