@@ -10,3 +10,5 @@ no_dumpfile	= true
 
 loader		= grub
 
+# Flavour specific configuration.
+dtb_file_highbank	= arch/$(build_arch)/boot/highbank.dtb
