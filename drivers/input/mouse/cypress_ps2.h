@@ -203,6 +203,5 @@ struct cytp_data {
 int cypress_detect(struct psmouse *psmouse, bool set_properties);
 int cypress_init(struct psmouse *psmouse);
 bool cypress_supported(void);
-inline void cytp_wakup(struct psmouse *psmouse);
 
 #endif  /* _CYPRESS_PS2_H */

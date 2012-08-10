@@ -119,11 +119,6 @@ static int cypress_ps2_ext_cmd(struct psmouse *psmouse, unsigned short cmd,
 	return rc;
 }
 
-inline void cytp_wakup(struct psmouse *psmouse)
-{
-	wake_up(&psmouse->ps2dev.wait);
-}
-
 static int cypress_ps2_read_cmd_status(struct psmouse *psmouse,
 				       unsigned char cmd,
 				       unsigned char *param)
