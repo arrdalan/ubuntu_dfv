@@ -248,8 +248,6 @@ int cypress_detect(struct psmouse *psmouse, bool set_properties)
 	return 0;
 }
 
-#ifdef CONFIG_MOUSE_PS2_CYPRESS
-
 static int cypress_read_fw_version(struct psmouse *psmouse)
 {
 	struct cytp_data *cytp = psmouse->private;
@@ -941,17 +939,3 @@ bool cypress_supported(void)
 {
 	return true;
 }
-
-#else  /* CONFIG_MOUSE_PS2_CYPRESS */
-
-int cypress_init(struct psmouse *psmouse)
-{
-	return -ENOSYS;
-}
-
-bool cypress_supported(void)
-{
-	return false;
-}
-
-#endif	/* CONFIG_MOUSE_PS2_CYPRESS */
