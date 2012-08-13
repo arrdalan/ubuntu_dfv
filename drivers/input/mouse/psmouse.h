@@ -26,6 +26,7 @@ enum psmouse_state {
 	PSMOUSE_INITIALIZING,
 	PSMOUSE_RESYNCING,
 	PSMOUSE_CMD_MODE,
+	PSMOUSE_CMD_CYTP,	/* Cypress Trackpad detecting and initializing state. */
 	PSMOUSE_ACTIVATED,
 };
 
@@ -86,6 +87,7 @@ enum psmouse_type {
 	PSMOUSE_IMPS,
 	PSMOUSE_IMEX,
 	PSMOUSE_SYNAPTICS,
+	PSMOUSE_CYPRESS,
 	PSMOUSE_ALPS,
 	PSMOUSE_LIFEBOOK,
 	PSMOUSE_TRACKPOINT,
