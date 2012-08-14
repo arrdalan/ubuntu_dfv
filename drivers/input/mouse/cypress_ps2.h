@@ -13,8 +13,8 @@
 #define CYTP_CMD_ABS_NO_PRESSURE_MODE       ENCODE_CMD(0, 1, 0, 0)
 #define CYTP_CMD_ABS_WITH_PRESSURE_MODE     ENCODE_CMD(0, 1, 0, 1)
 #define CYTP_CMD_SMBUS_MODE                 ENCODE_CMD(0, 1, 1, 0)
-#define CYTP_CMD_STANDARD_MODE              ENCODE_CMD(0, 2, 0, 0)  // not implemented yet.
-#define CYTP_CMD_CYPRESS_REL_MODE           ENCODE_CMD(1, 1, 1, 1)  // not implemented yet.
+#define CYTP_CMD_STANDARD_MODE              ENCODE_CMD(0, 2, 0, 0)  /* not implemented yet. */
+#define CYTP_CMD_CYPRESS_REL_MODE           ENCODE_CMD(1, 1, 1, 1)  /* not implemented yet. */
 #define CYTP_CMD_READ_CYPRESS_ID            ENCODE_CMD(0, 0, 0, 0)
 #define CYTP_CMD_READ_VITAL_STATISTICS      ENCODE_CMD(0, 0, 0, 1)
 #define CYTP_CMD_SET_HSCROLL_WIDTH(w)       ENCODE_CMD(1, 1, 0, (w))
@@ -83,7 +83,7 @@
 #define CYTP_RESP_ERROR 0xfe
 
 
-#define CYTP_105001_WIDTH  97   // Dell XPS 13
+#define CYTP_105001_WIDTH  97   /* Dell XPS 13 */
 #define CYTP_105001_HIGH   59
 #define CYTP_DEFAULT_WIDTH (CYTP_105001_WIDTH)
 #define CYTP_DEFAULT_HIGH  (CYTP_105001_HIGH)
@@ -93,20 +93,20 @@
 #define CYTP_MAX_PRESSURE  255
 #define CYTP_MIN_PRESSURE  0
 
-// header byte bits of relative package.
+/* header byte bits of relative package. */
 #define BTN_LEFT_BIT   0x01
 #define BTN_RIGHT_BIT  0x02
 #define BTN_MIDDLE_BIT 0x04
 #define REL_X_SIGN_BIT 0x10
 #define REL_Y_SIGN_BIT 0x20
 
-// header byte bits of absolute package.
+/* header byte bits of absolute package. */
 #define ABS_VSCROLL_BIT 0x10
 #define ABS_HSCROLL_BIT 0x20
 #define ABS_MULTIFINGER_TAP 0x04
 #define ABS_EDGE_MOTION_MASK 0x80
 
-#define DFLT_RESP_BITS_VALID     0x88  // SMBus bit should not be set.
+#define DFLT_RESP_BITS_VALID     0x88  /* SMBus bit should not be set. */
 #define DFLT_RESP_SMBUS_BIT      0x80
 #define   DFLT_SMBUS_MODE        0x80
 #define   DFLT_PS2_MODE          0x00
@@ -147,8 +147,8 @@ enum cytp_type {
 struct cytp_contact {
 	int x;
 	int y;
-	int z;  // also named as touch pressure.
-	int id; // It's incremented with every new touch.
+	int z;  /* also named as touch pressure. */
+	int id; /* It's incremented with every new touch. */
 };
 
 /* The structure of */
@@ -158,7 +158,7 @@ struct cytp_report_data {
 	unsigned int left:1;
 	unsigned int right:1;
 	unsigned int middle:1;
-	unsigned int tap:1;  // multi-finger tap detected.
+	unsigned int tap:1;  /* multi-finger tap detected. */
 	signed char vscroll;
 	signed char hscroll;
 };
@@ -193,7 +193,7 @@ struct cytp_data {
 	unsigned char tp_1f_spike;
 
 	int vital_statics_supported;
-	
+
 	int prev_contact_cnt;
 	int zero_packet_cnt;
 	struct cytp_report_data prev_report_data;
