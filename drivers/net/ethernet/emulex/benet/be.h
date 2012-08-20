@@ -518,7 +518,7 @@ static inline void be_check_sriov_fn_type(struct be_adapter *adapter)
 
 static inline bool is_ipv4_pkt(struct sk_buff *skb)
 {
-	return skb->protocol == ntohs(ETH_P_IP) && ip_hdr(skb)->version == 4;
+	return skb->protocol == htons(ETH_P_IP) && ip_hdr(skb)->version == 4;
 }
 
 static inline void be_vf_eth_addr_generate(struct be_adapter *adapter, u8 *mac)
