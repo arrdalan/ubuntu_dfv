@@ -3656,4 +3656,10 @@
 #define GEN7_AUD_CNTRL_ST_A		0xE50B4
 #define GEN7_AUD_CNTRL_ST2		0xE50C0
 
+/* These are the 4 32-bit write offset registers for each stream
+ * output buffer.  It determines the offset from the
+ * 3DSTATE_SO_BUFFERs that the next streamed vertex output goes to.
+ */
+#define GEN7_SO_WRITE_OFFSET(n)		(0x5280 + (n) * 4)
+
 #endif /* _I915_REG_H_ */
