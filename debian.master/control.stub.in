@@ -54,7 +54,7 @@ Replaces: SRCPKGNAME-tools (<= 2.6.32-16.25)
 Description: Linux kernel version specific tools for version PKGVER
  This package provides the architecture independent parts for kernel
  version locked tools (such as perf and x86_energy_perf_policy) for
- version PGKVER.
+ version PKGVER.
 
 Package: linux-headers-PKGVER-ABINUM
 Architecture: all
