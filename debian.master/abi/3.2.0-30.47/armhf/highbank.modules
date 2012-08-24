@@ -1426,7 +1426,6 @@ rtc-pcf50633
 rtc-pcf8563
 rtc-pcf8583
 rtc-pl030
-rtc-pl031
 rtc-r9701
 rtc-rp5c01
 rtc-rs5c348

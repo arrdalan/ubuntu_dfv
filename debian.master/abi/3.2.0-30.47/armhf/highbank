@@ -2424,6 +2424,7 @@ EXPORT_SYMBOL vmlinux 0x00000000	abort_creds
 EXPORT_SYMBOL vmlinux 0x00000000	abort_exclusive_wait
 EXPORT_SYMBOL vmlinux 0x00000000	account_page_dirtied
 EXPORT_SYMBOL vmlinux 0x00000000	account_page_writeback
+EXPORT_SYMBOL vmlinux 0x00000000	add_device_randomness
 EXPORT_SYMBOL vmlinux 0x00000000	add_disk
 EXPORT_SYMBOL vmlinux 0x00000000	add_taint
 EXPORT_SYMBOL vmlinux 0x00000000	add_timer
@@ -3319,6 +3320,7 @@ EXPORT_SYMBOL vmlinux 0x00000000	get_options
 EXPORT_SYMBOL vmlinux 0x00000000	get_phy_device
 EXPORT_SYMBOL vmlinux 0x00000000	get_phy_id
 EXPORT_SYMBOL vmlinux 0x00000000	get_random_bytes
+EXPORT_SYMBOL vmlinux 0x00000000	get_random_bytes_arch
 EXPORT_SYMBOL vmlinux 0x00000000	get_seconds
 EXPORT_SYMBOL vmlinux 0x00000000	get_super
 EXPORT_SYMBOL vmlinux 0x00000000	get_unmapped_area_prot
@@ -7298,6 +7300,7 @@ EXPORT_SYMBOL_GPL vmlinux 0x00000000	ahash_attr_alg
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	ahash_free_instance
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	ahash_register_instance
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	ahci_check_ready
+EXPORT_SYMBOL_GPL vmlinux 0x00000000	ahci_dev_classify
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	ahci_do_softreset
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	ahci_em_messages
 EXPORT_SYMBOL_GPL vmlinux 0x00000000	ahci_fill_cmd_slot
