@@ -29,3 +29,5 @@ rndis_host ?
 smsc95xx ?
 zaurus ?
 carl9170 ?
+smsc75xx ?
+smsc95xx ?
