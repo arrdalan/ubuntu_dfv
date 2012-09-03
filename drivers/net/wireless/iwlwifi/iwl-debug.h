@@ -31,14 +31,33 @@
 
 #include "iwl-bus.h"
 #include "iwl-shared.h"
+#include "iwl-devtrace.h"
 
 struct iwl_priv;
 
-/*No matter what is m (priv, bus, trans), this will work */
-#define IWL_ERR(m, f, a...) dev_err(bus(m)->dev, f, ## a)
-#define IWL_WARN(m, f, a...) dev_warn(bus(m)->dev, f, ## a)
-#define IWL_INFO(m, f, a...) dev_info(bus(m)->dev, f, ## a)
-#define IWL_CRIT(m, f, a...) dev_crit(bus(m)->dev, f, ## a)
+void __iwl_err(struct device *dev, bool rfkill_prefix, bool only_trace,
+	       const char *fmt, ...);
+void __iwl_warn(struct device *dev, const char *fmt, ...);
+void __iwl_info(struct device *dev, const char *fmt, ...);
+void __iwl_crit(struct device *dev, const char *fmt, ...);
+
+/* No matter what is m (priv, bus, trans), this will work */
+#define IWL_ERR(m, f, a...) __iwl_err(bus(m)->dev, false, false, f, ## a)
+#define IWL_WARN(m, f, a...) __iwl_warn(bus(m)->dev, f, ## a)
+#define IWL_INFO(m, f, a...) __iwl_info(bus(m)->dev, f, ## a)
+#define IWL_CRIT(m, f, a...) __iwl_crit(bus(m)->dev, f, ## a)
+
+#if defined(CONFIG_IWLWIFI_DEBUG) || defined(CONFIG_IWLWIFI_DEVICE_TRACING)
+void __iwl_dbg(struct iwl_shared *shared, struct device *dev,
+	      u32 level, bool limit, const char *function,
+	      const char *fmt, ...);
+#else
+static inline void
+__iwl_dbg(struct iwl_shared *shared, struct device *dev,
+	 u32 level, bool limit, const char *function,
+	 const char *fmt, ...)
+{}
+#endif
 
 #define iwl_print_hex_error(m, p, len)					\
 do {									\
@@ -46,34 +65,36 @@ do {									\
 		       DUMP_PREFIX_OFFSET, 16, 1, p, len, 1);		\
 } while (0)
 
-#ifdef CONFIG_IWLWIFI_DEBUG
 #define IWL_DEBUG(m, level, fmt, args...)				\
-do {									\
-	if (iwl_get_debug_level((m)->shrd) & (level))			\
-		dev_printk(KERN_ERR, bus(m)->dev,			\
-			 "%c %s " fmt, in_interrupt() ? 'I' : 'U',	\
-			__func__ , ## args);				\
-} while (0)
-
+	__iwl_dbg((m)->shrd, bus(m)->dev, level, false, __func__, fmt, ##args)
 #define IWL_DEBUG_LIMIT(m, level, fmt, args...)				\
-do {									\
-	if (iwl_get_debug_level((m)->shrd) & (level) && net_ratelimit())\
-		dev_printk(KERN_ERR, bus(m)->dev,			\
-			"%c %s " fmt, in_interrupt() ? 'I' : 'U',	\
-			 __func__ , ## args);				\
-} while (0)
+	__iwl_dbg((m)->shrd, bus(m)->dev, level, true, __func__, fmt, ##args)
 
+#ifdef CONFIG_IWLWIFI_DEBUG
 #define iwl_print_hex_dump(m, level, p, len)				\
 do {                                            			\
 	if (iwl_get_debug_level((m)->shrd) & level)			\
 		print_hex_dump(KERN_DEBUG, "iwl data: ",		\
 			       DUMP_PREFIX_OFFSET, 16, 1, p, len, 1);	\
 } while (0)
-
+#define IWL_DEBUG_QUIET_RFKILL(m, fmt, args...)		\
+do {									\
+	if (!iwl_is_rfkill((m)->shrd))					\
+		IWL_ERR(m, fmt, ##args);				\
+	else								\
+		__iwl_err(trans(m)->dev, true,				\
+			  !(iwl_get_debug_level((m)->shrd) & IWL_DL_RADIO),\
+			  fmt, ##args);					\
+} while (0)
 #else
-#define IWL_DEBUG(m, level, fmt, args...)
-#define IWL_DEBUG_LIMIT(m, level, fmt, args...)
 #define iwl_print_hex_dump(m, level, p, len)
+#define IWL_DEBUG_QUIET_RFKILL(m, fmt, args...)		\
+do {									\
+	if (!iwl_is_rfkill((m)->shrd))					\
+		IWL_ERR(m, fmt, ##args);				\
+	else								\
+		__iwl_err(trans(m)->dev, true, true, fmt, ##args);	\
+} while (0)
 #endif				/* CONFIG_IWLWIFI_DEBUG */
 
 #ifdef CONFIG_IWLWIFI_DEBUGFS
