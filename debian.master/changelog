@@ -1,3 +1,22 @@
+linux (3.2.0-31.50) precise-proposed; urgency=low
+
+  [Luis Henriques]
+
+  * Release Tracking Bug
+    - LP: #1047242
+
+  [ Dave Airlie ]
+
+  * SAUCE: drm/vmwgfx: add MODULE_DEVICE_TABLE so vmwgfx loads at boot
+    - LP: #1039157
+
+  [ Kamal Mostafa ]
+
+  * SAUCE: input: Cypress PS/2 Trackpad move PSMOUSE_CYPRESS enum
+    - LP: #1041594
+
+ -- Luis Henriques <luis.henriques@canonical.com>  Fri, 07 Sep 2012 16:36:58 +0100
+
 linux (3.2.0-31.49) precise-proposed; urgency=low
 
   [Luis Henriques]
