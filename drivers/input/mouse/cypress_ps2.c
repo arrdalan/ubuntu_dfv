@@ -693,6 +693,14 @@ static int cypress_parse_packet(const unsigned char packet[],
 		}
 	}
 
+	/* This is only true if one of the mouse buttons were tapped.
+	 * Make sure it doesn't turn into a click. The regular tap-to-
+	 * click functionality will handle that on its own. If we don't
+	 * do this, disabling tap-to-click won't affect the mouse button
+	 * zones. */
+	if (report_data->tap)
+		report_data->left = 0;
+
 	if (report_data->contact_cnt <= 0)
 		return 0;
 
