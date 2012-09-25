@@ -7953,11 +7953,16 @@ void intel_init_emon(struct drm_device *dev)
 
 static bool intel_enable_rc6(struct drm_device *dev)
 {
+	struct drm_i915_private *dev_priv = dev->dev_private;
+
 	/*
 	 * Respect the kernel parameter if it is set
 	 */
 	if (i915_enable_rc6 >= 0)
 		return i915_enable_rc6;
+
+	if (dev_priv->quirks & QUIRK_RC6_DISABLE)
+		return 0;
 
 	/*
 	 * Disable RC6 on Ironlake
@@ -8765,6 +8770,13 @@ static void quirk_ssc_force_disable(struct drm_device *dev)
 	dev_priv->quirks |= QUIRK_LVDS_SSC_DISABLE;
 }
 
+static void quirk_rc6_force_disable(struct drm_device *dev)
+{
+	struct drm_i915_private *dev_priv = dev->dev_private;
+	dev_priv->quirks |= QUIRK_RC6_DISABLE;
+	DRM_INFO("applying RC6 disable quirk\n");
+}
+
 struct intel_quirk {
 	int device;
 	int subsystem_vendor;
@@ -8797,6 +8809,12 @@ struct intel_quirk intel_quirks[] = {
 
 	/* Sony Vaio Y cannot use SSC on LVDS */
 	{ 0x0046, 0x104d, 0x9076, quirk_ssc_force_disable },
+
+	/* Asus ET2012E may fail to resume from S3 if RC6 is enabled */
+	{ 0x0102, 0x1043, 0x844d, quirk_rc6_force_disable },
+
+	/* Lenovo ThinkCentre S510 may hang after idle for a long time */
+	{ 0x0102, 0x17aa, 0x307b, quirk_rc6_force_disable },
 };
 
 static void intel_init_quirks(struct drm_device *dev)
