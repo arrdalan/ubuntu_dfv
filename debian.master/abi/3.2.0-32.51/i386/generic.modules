@@ -1184,6 +1184,7 @@ i2c-ali15x3
 i2c-amd756
 i2c-amd756-s4882
 i2c-amd8111
+i2c-designware-core
 i2c-designware-pci
 i2c-dev
 i2c-diolan-u2c
