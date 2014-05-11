@@ -9,6 +9,49 @@
 #include "pci.h"
 
 /*
+ * When queried, the next two functions virtualize the PCI configuration space
+ * for virtual PCI devices.
+ */
+int pci_read_virtual_dev_config(struct pci_dev *dev, int where, int size,
+								u32 *val)
+{
+	u8 * config = dev->virtual_config;
+
+	if (size == 4) {
+		*val = 0;
+		*val += config[where+2];
+		*val <<= 8;
+		*val += config[where+3];
+		*val <<= 8;
+		*val += config[where];
+		*val <<= 8;
+		*val += config[where+1];
+		return 1;
+	}
+	else if (size == 2) {
+		*val = 0;
+		*val += config[where];
+		*val <<= 8;
+		*val += config[where+1];
+		return 1;
+	}
+	else if (size == 1) {
+		*val = 0;
+		*val += config[where];
+		return 1;
+	}
+	*val = 0;
+	return 1;
+}
+
+int pci_write_virtual_dev_config (struct pci_dev *dev, int where, int size,
+								u32 val)
+{
+	//printk("dvkernel: pci_write_virtual_dev_config: is called.\n");
+	return 1;
+}
+
+/*
  * This interrupt-safe spinlock protects all accesses to PCI
  * configuration space.
  */
@@ -154,9 +197,14 @@ int pci_user_read_config_##size						\
 		return -EINVAL;						\
 	raw_spin_lock_irq(&pci_lock);				\
 	if (unlikely(dev->block_ucfg_access)) pci_wait_ucfg(dev);	\
-	ret = dev->bus->ops->read(dev->bus, dev->devfn,			\
+	if (dev != NULL && dev->is_virtual_dev) {			\
+		ret = pci_read_virtual_dev_config(dev, 			\
 					pos, sizeof(type), &data);	\
-	raw_spin_unlock_irq(&pci_lock);				\
+	} else {							\
+		ret = dev->bus->ops->read(dev->bus, dev->devfn,		\
+					pos, sizeof(type), &data);	\
+	}								\
+	raw_spin_unlock_irq(&pci_lock);					\
 	*val = (type)data;						\
 	if (ret > 0)							\
 		ret = -EINVAL;						\
@@ -173,8 +221,13 @@ int pci_user_write_config_##size					\
 		return -EINVAL;						\
 	raw_spin_lock_irq(&pci_lock);				\
 	if (unlikely(dev->block_ucfg_access)) pci_wait_ucfg(dev);	\
-	ret = dev->bus->ops->write(dev->bus, dev->devfn,		\
+	if (dev != NULL && dev->is_virtual_dev) {			\
+		ret = pci_write_virtual_dev_config(dev, 		\
 					pos, sizeof(type), val);	\
+	} else {							\
+		ret = dev->bus->ops->write(dev->bus, dev->devfn,	\
+					pos, sizeof(type), val);	\
+	}								\
 	raw_spin_unlock_irq(&pci_lock);				\
 	if (ret > 0)							\
 		ret = -EINVAL;						\

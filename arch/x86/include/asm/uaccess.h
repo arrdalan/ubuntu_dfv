@@ -9,9 +9,28 @@
 #include <linux/string.h>
 #include <asm/asm.h>
 #include <asm/page.h>
+#include <linux/sched.h>
 
 #define VERIFY_READ 0
 #define VERIFY_WRITE 1
+
+extern unsigned long (*dfv_copy_from_user) (void *to, const void __user *from,
+							unsigned long n);
+extern unsigned long (*dfv_copy_to_user) (void __user *to, const void *from,
+							unsigned long n);
+extern int (*dfv_get_user) (void *to, const void __user *from, unsigned long n);
+extern int (*dfv_put_user) (void __user *to, const void *from, unsigned long n);
+extern long (*dfv_strncpy_from_user) (char *dst, const char __user *src,
+							long count);
+extern unsigned long (*dfv_clear_user) (void __user *to, unsigned long n);
+extern long (*dfv_strnlen_user) (const char __user *s, long n);
+extern unsigned long (*dfv_range_not_ok)(const void __user *addr, long size);
+extern unsigned long (*dfv_copy_from_user_inatomic) (void *to,
+				const void __user *from, unsigned long n);
+extern unsigned long (*dfv_copy_from_user_ll_nocache_nozero) (void *to,
+				const void __user *from, unsigned long n);
+extern unsigned long (*dfv_copy_to_user_inatomic) (void __user *to,
+				const void *from, unsigned long n);
 
 /*
  * The fs value determines whether argument validity checking should be
@@ -49,11 +68,16 @@
 #define __range_not_ok(addr, size)					\
 ({									\
 	unsigned long flag, roksum;					\
-	__chk_user_ptr(addr);						\
-	asm("add %3,%1 ; sbb %0,%0 ; cmp %1,%4 ; sbb $0,%0"		\
-	    : "=&r" (flag), "=r" (roksum)				\
-	    : "1" (addr), "g" ((long)(size)),				\
-	      "rm" (current_thread_info()->addr_limit.seg));		\
+	if (current && current->dfvcontext && dfv_range_not_ok) {	\
+		flag = (*dfv_range_not_ok)((const void __user *) addr,  \
+							(long) size);	\
+	} else {							\
+		__chk_user_ptr(addr);					\
+		asm("add %3,%1 ; sbb %0,%0 ; cmp %1,%4 ; sbb $0,%0"	\
+	    		: "=&r" (flag), "=r" (roksum)			\
+	    		: "1" (addr), "g" ((long)(size)),		\
+	      		"rm" (current_thread_info()->addr_limit.seg));	\
+	}								\
 	flag;								\
 })
 
@@ -157,24 +181,30 @@ extern int __get_user_bad(void);
 	unsigned long __val_gu;						\
 	__chk_user_ptr(ptr);						\
 	might_fault();							\
-	switch (sizeof(*(ptr))) {					\
-	case 1:								\
-		__get_user_x(1, __ret_gu, __val_gu, ptr);		\
-		break;							\
-	case 2:								\
-		__get_user_x(2, __ret_gu, __val_gu, ptr);		\
-		break;							\
-	case 4:								\
-		__get_user_x(4, __ret_gu, __val_gu, ptr);		\
-		break;							\
-	case 8:								\
-		__get_user_8(__ret_gu, __val_gu, ptr);			\
-		break;							\
-	default:							\
-		__get_user_x(X, __ret_gu, __val_gu, ptr);		\
-		break;							\
+	if (current && current->dfvcontext && dfv_copy_from_user) {	\
+		__ret_gu = (*dfv_copy_from_user)(&__val_gu, ptr,	\
+			sizeof(*(ptr)));				\
+		if (__ret_gu == 0) (x) = (__typeof__(*(ptr)))__val_gu;	\
+	} else {							\
+		switch (sizeof(*(ptr))) {				\
+		case 1:							\
+			__get_user_x(1, __ret_gu, __val_gu, ptr);	\
+			break;						\
+		case 2:							\
+			__get_user_x(2, __ret_gu, __val_gu, ptr);	\
+			break;						\
+		case 4:							\
+			__get_user_x(4, __ret_gu, __val_gu, ptr);	\
+			break;						\
+		case 8:							\
+			__get_user_8(__ret_gu, __val_gu, ptr);		\
+			break;						\
+		default:						\
+			__get_user_x(X, __ret_gu, __val_gu, ptr);	\
+			break;						\
+		}							\
+		(x) = (__typeof__(*(ptr)))__val_gu;			\
 	}								\
-	(x) = (__typeof__(*(ptr)))__val_gu;				\
 	__ret_gu;							\
 })
 
@@ -246,35 +276,46 @@ extern void __put_user_8(void);
  *
  * Returns zero on success, or -EFAULT on error.
  */
-#define put_user(x, ptr)					\
-({								\
-	int __ret_pu;						\
-	__typeof__(*(ptr)) __pu_val;				\
-	__chk_user_ptr(ptr);					\
-	might_fault();						\
-	__pu_val = x;						\
-	switch (sizeof(*(ptr))) {				\
-	case 1:							\
-		__put_user_x(1, __pu_val, ptr, __ret_pu);	\
-		break;						\
-	case 2:							\
-		__put_user_x(2, __pu_val, ptr, __ret_pu);	\
-		break;						\
-	case 4:							\
-		__put_user_x(4, __pu_val, ptr, __ret_pu);	\
-		break;						\
-	case 8:							\
-		__put_user_x8(__pu_val, ptr, __ret_pu);		\
-		break;						\
-	default:						\
-		__put_user_x(X, __pu_val, ptr, __ret_pu);	\
-		break;						\
-	}							\
-	__ret_pu;						\
+#define put_user(x, ptr)						\
+({									\
+	int __ret_pu;							\
+	__typeof__(*(ptr)) __pu_val;					\
+	__chk_user_ptr(ptr);						\
+	might_fault();							\
+	__pu_val = x;							\
+	if (current && current->dfvcontext &&				\
+					dfv_copy_to_user) {		\
+		__ret_pu = (*dfv_copy_to_user)(ptr,			\
+			&__pu_val, sizeof(*(ptr)));			\
+	} else {							\
+		switch (sizeof(*(ptr))) {				\
+		case 1:							\
+			__put_user_x(1, __pu_val, ptr, __ret_pu);	\
+			break;						\
+		case 2:							\
+			__put_user_x(2, __pu_val, ptr, __ret_pu);	\
+			break;						\
+		case 4:							\
+			__put_user_x(4, __pu_val, ptr, __ret_pu);	\
+			break;						\
+		case 8:							\
+			__put_user_x8(__pu_val, ptr, __ret_pu);		\
+			break;						\
+		default:						\
+			__put_user_x(X, __pu_val, ptr, __ret_pu);	\
+			break;						\
+		}							\
+	} 								\
+	__ret_pu;							\
 })
 
 #define __put_user_size(x, ptr, size, retval, errret)			\
 do {									\
+	if (current->dfvcontext) {					\
+		printk("dfv-kernel: __put_user_size: error: not "	\
+						"implemented\n"); 	\
+		dump_stack();						\
+	}								\
 	retval = 0;							\
 	__chk_user_ptr(ptr);						\
 	switch (size) {							\
@@ -298,6 +339,11 @@ do {									\
 
 #define __put_user_size_ex(x, ptr, size)				\
 do {									\
+	if (current->dfvcontext) {					\
+		printk("dfv-kernel: __put_user_size_ex: error: not "	\
+						"implemented\n"); 	\
+		dump_stack();						\
+	}								\
 	__chk_user_ptr(ptr);						\
 	switch (size) {							\
 	case 1:								\
@@ -352,6 +398,11 @@ do {									\
 
 #define __get_user_size(x, ptr, size, retval, errret)			\
 do {									\
+	if (current->dfvcontext) {					\
+		printk("dfv-kernel: __get_user_size: error: not "	\
+						"implemented\n"); 	\
+		dump_stack();						\
+	}								\
 	retval = 0;							\
 	__chk_user_ptr(ptr);						\
 	switch (size) {							\
@@ -386,6 +437,11 @@ do {									\
 
 #define __get_user_size_ex(x, ptr, size)				\
 do {									\
+	if (current->dfvcontext) {					\
+		printk("dfv-kernel: __get_user_size_ex: error: not "	\
+						"implemented\n"); 	\
+		dump_stack();						\
+	}								\
 	__chk_user_ptr(ptr);						\
 	switch (size) {							\
 	case 1:								\

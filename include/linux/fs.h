@@ -943,6 +943,7 @@ struct fown_struct {
 	enum pid_type pid_type;	/* Kind of process group SIGIO should be sent to */
 	uid_t uid, euid;	/* uid/euid of process setting the owner */
 	int signum;		/* posix.1b rt signal to be delivered on IO */
+	int dfv_own;            /* This is used to redirect dfv guest signals */
 };
 
 /*
@@ -1017,6 +1018,7 @@ struct file {
 #ifdef CONFIG_DEBUG_WRITECOUNT
 	unsigned long f_mnt_write_state;
 #endif
+	int serverfd;
 };
 
 struct file_handle {

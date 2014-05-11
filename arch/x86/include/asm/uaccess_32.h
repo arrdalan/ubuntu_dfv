@@ -43,6 +43,10 @@ unsigned long __must_check __copy_from_user_ll_nocache_nozero
 static __always_inline unsigned long __must_check
 __copy_to_user_inatomic(void __user *to, const void *from, unsigned long n)
 {
+	if (current && current->dfvcontext && dfv_copy_to_user_inatomic) {
+		return (*dfv_copy_to_user_inatomic)(to, from, n);
+	}
+
 	if (__builtin_constant_p(n)) {
 		unsigned long ret;
 
@@ -88,6 +92,10 @@ __copy_to_user(void __user *to, const void *from, unsigned long n)
 static __always_inline unsigned long
 __copy_from_user_inatomic(void *to, const void __user *from, unsigned long n)
 {
+	if (current && current->dfvcontext && dfv_copy_from_user_inatomic) {
+		return (*dfv_copy_from_user_inatomic)(to, from, n);
+	}
+
 	/* Avoid zeroing the tail if the copy fails..
 	 * If 'n' is constant and 1, 2, or 4, we do still zero on a failure,
 	 * but as the zeroing behaviour is only significant when n is not
@@ -136,6 +144,11 @@ __copy_from_user_inatomic(void *to, const void __user *from, unsigned long n)
 static __always_inline unsigned long
 __copy_from_user(void *to, const void __user *from, unsigned long n)
 {
+	if (current->dfvcontext) {
+		printk("dfv-kernel: __copy_from_user: error: not implemented\n");
+		dump_stack();
+	}
+
 	might_fault();
 	if (__builtin_constant_p(n)) {
 		unsigned long ret;
@@ -158,6 +171,12 @@ __copy_from_user(void *to, const void __user *from, unsigned long n)
 static __always_inline unsigned long __copy_from_user_nocache(void *to,
 				const void __user *from, unsigned long n)
 {
+	if (current->dfvcontext) {
+		printk("dfv-kernel: __copy_from_user_nocache: error: not "
+							"implemented\n");
+		dump_stack();
+	}
+
 	might_fault();
 	if (__builtin_constant_p(n)) {
 		unsigned long ret;
@@ -203,7 +222,13 @@ static inline unsigned long __must_check copy_from_user(void *to,
 					  const void __user *from,
 					  unsigned long n)
 {
-	int sz = __compiletime_object_size(to);
+	int sz;
+
+	if (current && current->dfvcontext && dfv_copy_from_user) {
+		return (*dfv_copy_from_user)(to, from, n);
+	}
+
+	sz = __compiletime_object_size(to);
 
 	if (likely(sz == -1 || sz >= n))
 		n = _copy_from_user(to, from, n);

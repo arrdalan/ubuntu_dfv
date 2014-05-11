@@ -86,7 +86,7 @@ long select_estimate_accuracy(struct timespec *tv)
 		return current->timer_slack_ns;
 	return ret;
 }
-
+EXPORT_SYMBOL(select_estimate_accuracy);
 
 
 struct poll_table_page {
@@ -420,6 +420,8 @@ int do_select(int n, fd_set_bits *fds, struct timespec *end_time)
 
 	if (end_time && !timed_out)
 		slack = select_estimate_accuracy(end_time);
+
+	current->dfvdata[0] = (void *) end_time;
 
 	retval = 0;
 	for (;;) {
@@ -769,6 +771,8 @@ static int do_poll(unsigned int nfds,  struct poll_list *list,
 
 	if (end_time && !timed_out)
 		slack = select_estimate_accuracy(end_time);
+
+	current->dfvdata[0] = (void *) end_time;
 
 	for (;;) {
 		struct poll_list *walk;

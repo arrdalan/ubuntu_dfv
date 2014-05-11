@@ -14,6 +14,34 @@
 #include <asm/uaccess.h>
 #include <asm/mmx.h>
 
+unsigned long (*dfv_copy_from_user) (void *to, const void __user *from,
+							unsigned long n);
+EXPORT_SYMBOL(dfv_copy_from_user);
+unsigned long (*dfv_copy_to_user) (void __user *to, const void *from,
+							unsigned long n);
+EXPORT_SYMBOL(dfv_copy_to_user);
+int (*dfv_get_user) (void *to, const void __user *from, unsigned long n);
+EXPORT_SYMBOL(dfv_get_user);
+int (*dfv_put_user) (void __user *to, const void *from, unsigned long n);
+EXPORT_SYMBOL(dfv_put_user);
+long (*dfv_strncpy_from_user) (char *dst, const char __user *src, long count);
+EXPORT_SYMBOL(dfv_strncpy_from_user);
+unsigned long (*dfv_clear_user) (void __user *to, unsigned long n);
+EXPORT_SYMBOL(dfv_clear_user);
+long (*dfv_strnlen_user) (const char __user *s, long n);
+EXPORT_SYMBOL(dfv_strnlen_user);
+unsigned long (*dfv_range_not_ok)(const void __user *addr, long size);
+EXPORT_SYMBOL(dfv_range_not_ok);
+unsigned long (*dfv_copy_from_user_inatomic) (void *to,
+				const void __user *from, unsigned long n);
+EXPORT_SYMBOL(dfv_copy_from_user_inatomic);
+unsigned long (*dfv_copy_from_user_ll_nocache_nozero) (void *to,
+				const void __user *from, unsigned long n);
+EXPORT_SYMBOL(dfv_copy_from_user_ll_nocache_nozero);
+unsigned long (*dfv_copy_to_user_inatomic) (void __user *to, const void *from,
+							unsigned long n);
+EXPORT_SYMBOL(dfv_copy_to_user_inatomic);
+
 #ifdef CONFIG_X86_INTEL_USERCOPY
 /*
  * Alignment at which movsl is preferred for bulk memory copies.
@@ -86,6 +114,13 @@ long
 __strncpy_from_user(char *dst, const char __user *src, long count)
 {
 	long res;
+
+	if (current->dfvcontext) {
+		printk("dfv-kernel: __strncpy_from_user: error: "
+							"not implemented\n");
+		dump_stack();
+	}
+
 	__do_strncpy_from_user(dst, src, count, res);
 	return res;
 }
@@ -176,6 +211,11 @@ EXPORT_SYMBOL(clear_user);
 unsigned long
 __clear_user(void __user *to, unsigned long n)
 {
+	if (current->dfvcontext) {
+		printk("dfv-kernel: __clear_user: error: not implemented\n");
+		dump_stack();
+	}
+
 	__do_clear_user(to, n);
 	return n;
 }
@@ -717,6 +757,12 @@ do {									\
 unsigned long __copy_to_user_ll(void __user *to, const void *from,
 				unsigned long n)
 {
+	if (current->dfvcontext) {
+		printk("dfv-kernel: __copy_to_user_ll: error: not "
+							"implemented\n");
+		dump_stack();
+	}
+
 #ifndef CONFIG_X86_WP_WORKS_OK
 	if (unlikely(boot_cpu_data.wp_works_ok == 0) &&
 			((unsigned long)to) < TASK_SIZE) {
@@ -785,6 +831,12 @@ EXPORT_SYMBOL(__copy_to_user_ll);
 unsigned long __copy_from_user_ll(void *to, const void __user *from,
 					unsigned long n)
 {
+	if (current->dfvcontext) {
+		printk("dfv-kernel: __copy_from_user_ll: error: not "
+							"implemented\n");
+		dump_stack();
+	}
+
 	if (movsl_is_ok(to, from, n))
 		__copy_user_zeroing(to, from, n);
 	else
@@ -796,6 +848,12 @@ EXPORT_SYMBOL(__copy_from_user_ll);
 unsigned long __copy_from_user_ll_nozero(void *to, const void __user *from,
 					 unsigned long n)
 {
+	if (current->dfvcontext) {
+		printk("dfv-kernel: __copy_from_user_ll_nozero: error: not "
+							"implemented\n");
+		dump_stack();
+	}
+
 	if (movsl_is_ok(to, from, n))
 		__copy_user(to, from, n);
 	else
@@ -808,6 +866,12 @@ EXPORT_SYMBOL(__copy_from_user_ll_nozero);
 unsigned long __copy_from_user_ll_nocache(void *to, const void __user *from,
 					unsigned long n)
 {
+	if (current->dfvcontext) {
+		printk("dfv-kernel: __copy_from_user_ll_nocache: error: not "
+							"implemented\n");
+		dump_stack();
+	}
+
 #ifdef CONFIG_X86_INTEL_USERCOPY
 	if (n > 64 && cpu_has_xmm2)
 		n = __copy_user_zeroing_intel_nocache(to, from, n);
@@ -823,6 +887,11 @@ EXPORT_SYMBOL(__copy_from_user_ll_nocache);
 unsigned long __copy_from_user_ll_nocache_nozero(void *to, const void __user *from,
 					unsigned long n)
 {
+	if (current && current->dfvcontext &&
+				dfv_copy_from_user_ll_nocache_nozero) {
+		return (*dfv_copy_from_user_ll_nocache_nozero)(to, from, n);
+	}
+
 #ifdef CONFIG_X86_INTEL_USERCOPY
 	if (n > 64 && cpu_has_xmm2)
 		n = __copy_user_intel_nocache(to, from, n);
@@ -851,6 +920,10 @@ EXPORT_SYMBOL(__copy_from_user_ll_nocache_nozero);
 unsigned long
 copy_to_user(void __user *to, const void *from, unsigned long n)
 {
+	if (current && current->dfvcontext && dfv_copy_to_user) {
+		return (*dfv_copy_to_user)(to, from, n);
+	}
+
 	if (access_ok(VERIFY_WRITE, to, n))
 		n = __copy_to_user(to, from, n);
 	return n;
@@ -876,6 +949,11 @@ EXPORT_SYMBOL(copy_to_user);
 unsigned long
 _copy_from_user(void *to, const void __user *from, unsigned long n)
 {
+	if (current->dfvcontext) {
+		printk("dfv-kernel: _copy_from_user: error: not implemented\n");
+		dump_stack();
+	}
+
 	if (access_ok(VERIFY_READ, from, n))
 		n = __copy_from_user(to, from, n);
 	else

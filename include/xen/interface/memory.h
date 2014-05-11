@@ -228,6 +228,62 @@ DEFINE_GUEST_HANDLE_STRUCT(xen_memory_map);
  */
 #define XENMEM_machine_memory_map   10
 
+/*
+ * Copies to/from user memory of a domain.
+ * Returns error if not permitted by domain domid.
+ * arg == addr of struct xen_copy_domain_user.
+ */
+#define XENMEM_copy_from_domain_user       23
+#define XENMEM_copy_to_domain_user         24
+struct xen_copy_domain_user {    
+	uint64_t from;
+	uint64_t to;
+	uint64_t n;
+	uint64_t grant;
+	domid_t domid;
+	uint16_t flags;    
+};
+DEFINE_GUEST_HANDLE_STRUCT(xen_copy_domain_user);
+
+/* FIXME: Is this the right place to put these four? */
+#define HVMCOPY_dst_phys   (0u<<3)
+#define HVMCOPY_dst_virt   (1u<<3)
+#define HVMCOPY_src_phys   (0u<<4)
+#define HVMCOPY_src_virt   (1u<<4)
+
+/*
+ * Maps the gfn from the current domain
+ * to the user vaddr in the domid domain.
+ * @flags is the guest page table permissions.
+ * Return value:
+ * if successful, returns the
+ * gfn in the dst VM corresponding to the mapping.
+ * Returns 0 on error.
+ * Returns error if not permitted by domain domid.
+ * arg == addr of struct xen_map_page_to_domain.
+ */
+#define XENMEM_map_page_to_domain_user    25
+struct xen_map_page_to_domain_user {    
+	uint64_t gfn;
+	uint64_t vaddr;
+	uint64_t flags;
+	uint64_t grant;
+	domid_t domid;        
+};
+DEFINE_GUEST_HANDLE_STRUCT(xen_map_page_to_domain_user);
+/*
+ * Unmaps a page from domid domain.
+ * Returns error if we did not map the page.
+ * arg = addr of struct xen_unmap_page_from_domain_user.
+ */
+#define XENMEM_unmap_page_from_domain_user    26
+struct xen_unmap_page_from_domain_user {    
+	uint64_t gfn;
+	uint64_t grant;
+	domid_t domid;        
+};
+DEFINE_GUEST_HANDLE_STRUCT(xen_unmap_page_from_domain_user);
+
 
 /*
  * Prevent the balloon driver from changing the memory reservation

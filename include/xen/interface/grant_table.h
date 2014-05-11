@@ -322,6 +322,22 @@ struct gnttab_query_size {
 DEFINE_GUEST_HANDLE_STRUCT(gnttab_query_size);
 
 /*
+ * GNTTABOP_setup_dfv_table: Sets up the dfv grant table for the
+ * calling (current) domain.
+ * 
+ * @gfn: start address of (contiguous) page(s) allocated for the dfv
+ *	grant_table.
+ * @nr_frames: number of dfv grant-table pages.
+ * Xen may not support more than a single grant-table page per domain.
+ */
+#define GNTTABOP_setup_dfv_table	12
+struct gnttab_setup_dfv_table {    
+	uint64_t gfn;
+	uint32_t nr_frames;  
+};
+DEFINE_GUEST_HANDLE_STRUCT(gnttab_setup_dfv_table);
+
+/*
  * Bitfield values for update_pin_status.flags.
  */
  /* Map the grant entry for access by I/O devices. */

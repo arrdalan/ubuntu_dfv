@@ -1226,6 +1226,7 @@ void pci_device_add(struct pci_dev *dev, struct pci_bus *bus)
 	list_add_tail(&dev->bus_list, &bus->devices);
 	up_write(&pci_bus_sem);
 }
+EXPORT_SYMBOL(pci_device_add);
 
 struct pci_dev *__ref pci_scan_single_device(struct pci_bus *bus, int devfn)
 {

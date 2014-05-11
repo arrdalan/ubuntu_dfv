@@ -25,6 +25,11 @@
 #include <asm/siginfo.h>
 #include <asm/uaccess.h>
 
+void (*dfv_send_sigio)(struct fown_struct *fown, int fd, int band);
+EXPORT_SYMBOL(dfv_send_sigio);
+bool (*dfv_is_fg)(void);
+EXPORT_SYMBOL(dfv_is_fg);
+
 void set_close_on_exec(unsigned int fd, int flag)
 {
 	struct files_struct *files = current->files;
@@ -807,8 +812,20 @@ static void kill_fasync_rcu(struct fasync_struct *fa, int sig, int band)
 			/* Don't send SIGURG to processes which have not set a
 			   queued signum: SIGURG has its own default signalling
 			   mechanism. */
-			if (!(sig == SIGURG && fown->signum == 0))
-				send_sigio(fown, fa->fa_fd, band);
+			if (!(sig == SIGURG && fown->signum == 0)) {
+				if (fown->dfv_own == 1 &&
+						dfv_send_sigio != NULL) {
+					(*dfv_send_sigio)(fown, fa->fa_fd, band);
+				}
+				else {					
+					bool dfv_fg = false;
+					if (dfv_is_fg)
+						dfv_fg = (*dfv_is_fg)();
+					
+					if (!dfv_fg) send_sigio(fown,
+							fa->fa_fd, band);					
+				}
+			}
 		}
 		spin_unlock_irqrestore(&fa->fa_lock, flags);
 		fa = rcu_dereference(fa->fa_next);

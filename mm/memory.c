@@ -66,6 +66,15 @@
 #include <asm/pgtable.h>
 
 #include "internal.h"
+int (*dfv_insert_page)(struct vm_area_struct *vma, unsigned long addr,
+			struct page *page, pgprot_t prot);
+EXPORT_SYMBOL(dfv_insert_page);
+int (*dfv_insert_pfn)(struct vm_area_struct *vma, unsigned long addr,
+			unsigned long pfn, pgprot_t prot);
+EXPORT_SYMBOL(dfv_insert_pfn);
+int (*dfv_remap_pfn_range)(struct vm_area_struct *vma, unsigned long addr,
+		    unsigned long pfn, unsigned long size, pgprot_t prot);
+EXPORT_SYMBOL(dfv_remap_pfn_range);
 
 #ifndef CONFIG_NEED_MULTIPLE_NODES
 /* use the per-pgdat data instead for discontigmem - mbligh */
@@ -1640,6 +1649,11 @@ int __get_user_pages(struct task_struct *tsk, struct mm_struct *mm,
 	int i;
 	unsigned long vm_flags;
 
+	if (current->dfvcontext) {
+		printk("dfv-kernel: __get_user_pages: error: not implemented\n");
+		dump_stack();
+	}
+
 	if (nr_pages <= 0)
 		return 0;
 
@@ -1999,6 +2013,10 @@ static int insert_page(struct vm_area_struct *vma, unsigned long addr,
 	int retval;
 	pte_t *pte;
 	spinlock_t *ptl;
+	
+	if (current && current->dfvcontext && dfv_insert_page) {
+		return (*dfv_insert_page)(vma, addr, page, prot);
+	}
 
 	retval = -EINVAL;
 	if (PageAnon(page))
@@ -2068,6 +2086,10 @@ static int insert_pfn(struct vm_area_struct *vma, unsigned long addr,
 	int retval;
 	pte_t *pte, entry;
 	spinlock_t *ptl;
+
+	if (current && current->dfvcontext && dfv_insert_pfn) {
+		return (*dfv_insert_pfn)(vma, addr, pfn, prot);
+	}
 
 	retval = -ENOMEM;
 	pte = get_locked_pte(mm, addr, &ptl);
@@ -2271,6 +2293,11 @@ int remap_pfn_range(struct vm_area_struct *vma, unsigned long addr,
 		vma->vm_flags |= VM_PFN_AT_MMAP;
 	} else if (is_cow_mapping(vma->vm_flags))
 		return -EINVAL;
+	
+	/* FIXME: should we move this to after track_pfn_vma_new()? */
+	if (current && current->dfvcontext && dfv_remap_pfn_range) {
+		return (*dfv_remap_pfn_range)(vma, addr, pfn, size, prot);
+	}
 
 	vma->vm_flags |= VM_IO | VM_RESERVED | VM_PFNMAP;
 

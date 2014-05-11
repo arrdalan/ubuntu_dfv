@@ -345,6 +345,10 @@ struct pci_dev {
 	};
 	struct pci_ats	*ats;	/* Address Translation Service */
 #endif
+	unsigned int is_virtual_dev:1; /* used to match virtual devices to
+					  virtual drivers */
+	u8 *virtual_config; /* the pci config information of a virtual
+			       device */
 };
 
 static inline struct pci_dev *pci_physfn(struct pci_dev *dev)
@@ -562,6 +566,8 @@ struct pci_driver {
 	struct pci_error_handlers *err_handler;
 	struct device_driver	driver;
 	struct pci_dynids dynids;
+	unsigned int is_virtual_driver:1; /* used to match virtual devices to
+					     virtual drivers */
 };
 
 #define	to_pci_driver(drv) container_of(drv, struct pci_driver, driver)

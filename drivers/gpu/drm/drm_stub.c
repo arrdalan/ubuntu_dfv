@@ -60,6 +60,8 @@ module_param_named(timestamp_precision_usec, drm_timestamp_precision, int, 0600)
 struct idr drm_minors_idr;
 
 struct class *drm_class;
+EXPORT_SYMBOL(drm_class);
+
 struct proc_dir_entry *drm_proc_root;
 struct dentry *drm_debugfs_root;
 

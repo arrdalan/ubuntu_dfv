@@ -268,6 +268,10 @@ static const struct pci_device_id *pci_match_device(struct pci_driver *drv,
 {
 	struct pci_dynid *dynid;
 
+	if (drv->is_virtual_driver != dev->is_virtual_dev) {
+		return NULL;
+	}
+	
 	/* Look at the dynamic ids first, before the static ones */
 	spin_lock(&drv->dynids.lock);
 	list_for_each_entry(dynid, &drv->dynids.list, node) {
