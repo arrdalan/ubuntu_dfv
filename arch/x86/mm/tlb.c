@@ -16,6 +16,7 @@
 
 DEFINE_PER_CPU_SHARED_ALIGNED(struct tlb_state, cpu_tlbstate)
 			= { &init_mm, 0, };
+EXPORT_SYMBOL(cpu_tlbstate);
 
 /*
  *	Smarter SMP flushing macros.

@@ -256,6 +256,8 @@ struct kvm_pio_request {
 	int size;
 };
 
+struct guest_walker;
+
 /*
  * x86 supports 3 paging modes (4-level 64-bit, 3-level 64-bit, and 2-level
  * 32-bit).  The kvm_mmu structure abstracts the details of the current mmu
@@ -292,6 +294,22 @@ struct kvm_mmu {
 	bool nx;
 
 	u64 pdptrs[4]; /* pae */
+	int (*walk_addr)(struct guest_walker *walker,
+			 struct kvm_vcpu *vcpu, gva_t addr, u32 access);
+	int (*walk_addr_preempted)(struct guest_walker *walker,
+				   struct kvm_vcpu *vcpu, gva_t addr,
+				   u32 access, unsigned long cr3_val);
+	u64 (*fetch)(struct kvm_vcpu *vcpu, gva_t addr,
+		     struct guest_walker *gw,
+		     int user_fault, int write_fault, int hlevel,
+		     int *emulate, pfn_t pfn, bool map_writable,
+		     bool prefault);
+	gpa_t (*gva_to_gpa_preempted)(struct kvm_vcpu *vcpu, gva_t gva,
+				      u32 access, struct x86_exception *exception,
+				      unsigned long cr3_val);
+	int (*__direct_map)(struct kvm_vcpu *vcpu, gpa_t v, int write,
+			    int map_writable, int level, gfn_t gfn, pfn_t pfn,
+			    bool prefault);			
 };
 
 struct kvm_vcpu_arch {

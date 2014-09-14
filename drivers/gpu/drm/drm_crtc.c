@@ -37,10 +37,11 @@
 #include "drm_crtc.h"
 #include "drm_edid.h"
 
-int (*dfv_drm_setcrtc)(bool is_dfv);
+int (*dfv_drm_setcrtc)(uint32_t new_fb_id, uint32_t prev_fb_id, bool is_dfv);
 EXPORT_SYMBOL(dfv_drm_setcrtc);
-int (*dfv_drm_rmfb)(void);
+int (*dfv_drm_rmfb)(uint32_t fb_id);
 EXPORT_SYMBOL(dfv_drm_rmfb);
+uint32_t dfv_prev_fb_id = 0;
 
 struct drm_prop_enum_list {
 	int type;
@@ -1521,7 +1522,7 @@ int drm_mode_setcrtc(struct drm_device *dev, void *data,
 	crtc = obj_to_crtc(obj);
 	DRM_DEBUG_KMS("[CRTC:%d]\n", crtc->base.id);	
 	if (dfv_drm_setcrtc) {
-		(*dfv_drm_setcrtc)(current->dfvcontext);
+		(*dfv_drm_setcrtc)(crtc_req->fb_id, dfv_prev_fb_id, current->dfvcontext);
 	}
 
 	if (crtc_req->mode_valid) {
@@ -1771,7 +1772,7 @@ int drm_mode_rmfb(struct drm_device *dev,
 		goto out;
 	}
 	if (current->dfvcontext && dfv_drm_rmfb) {
-		(*dfv_drm_rmfb)();
+		(*dfv_drm_rmfb)(fb->base.id);
 	}
 
 	/* TODO release all crtc connected to the framebuffer */
@@ -1820,6 +1821,9 @@ int drm_mode_getfb(struct drm_device *dev,
 		goto out;
 	}
 	fb = obj_to_fb(obj);	
+	if (current->dfvcontext) {
+		dfv_prev_fb_id = r->fb_id;
+	}
 
 	r->height = fb->height;
 	r->width = fb->width;

@@ -32,6 +32,7 @@
 #include "irq.h"
 
 #include "ioapic.h"
+#include <linux/module.h> /* for EXPORT_SYMBOL() */
 
 static inline int kvm_irq_line_state(unsigned long *irq_state,
 				     int irq_source_id, int level)
@@ -175,6 +176,7 @@ int kvm_set_irq(struct kvm *kvm, int irq_source_id, u32 irq, int level)
 
 	return ret;
 }
+EXPORT_SYMBOL(kvm_set_irq);
 
 void kvm_notify_acked_irq(struct kvm *kvm, unsigned irqchip, unsigned pin)
 {

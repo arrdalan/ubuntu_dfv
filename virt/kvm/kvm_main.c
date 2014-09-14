@@ -654,8 +654,10 @@ int __kvm_set_memory_region(struct kvm *kvm,
 	/* General sanity checks */
 	if (mem->memory_size & (PAGE_SIZE - 1))
 		goto out;
+	
 	if (mem->guest_phys_addr & (PAGE_SIZE - 1))
 		goto out;
+	
 	/* We can read the guest memory with __xxx_user() later on. */
 	if (user_alloc &&
 	    ((mem->userspace_addr & (PAGE_SIZE - 1)) ||
@@ -663,11 +665,13 @@ int __kvm_set_memory_region(struct kvm *kvm,
 			(void __user *)(unsigned long)mem->userspace_addr,
 			mem->memory_size)))
 		goto out;
+		
 	if (mem->slot >= KVM_MEMORY_SLOTS + KVM_PRIVATE_MEM_SLOTS)
 		goto out;
+	
 	if (mem->guest_phys_addr + mem->memory_size < mem->guest_phys_addr)
 		goto out;
-
+	
 	memslot = &kvm->memslots->memslots[mem->slot];
 	base_gfn = mem->guest_phys_addr >> PAGE_SHIFT;
 	npages = mem->memory_size >> PAGE_SHIFT;
@@ -675,7 +679,7 @@ int __kvm_set_memory_region(struct kvm *kvm,
 	r = -EINVAL;
 	if (npages > KVM_MEM_MAX_NR_PAGES)
 		goto out;
-
+	
 	if (!npages)
 		mem->flags &= ~KVM_MEM_LOG_DIRTY_PAGES;
 
@@ -690,7 +694,7 @@ int __kvm_set_memory_region(struct kvm *kvm,
 	r = -EINVAL;
 	if (npages && old.npages && npages != old.npages)
 		goto out_free;
-
+	
 	/* Check for overlaps */
 	r = -EEXIST;
 	for (i = 0; i < KVM_MEMORY_SLOTS; ++i) {
@@ -701,7 +705,7 @@ int __kvm_set_memory_region(struct kvm *kvm,
 		if (!((base_gfn + npages <= s->base_gfn) ||
 		      (base_gfn >= s->base_gfn + s->npages)))
 			goto out_free;
-	}
+	}	
 
 	/* Free page dirty bitmap if unneeded */
 	if (!(new.flags & KVM_MEM_LOG_DIRTY_PAGES))
@@ -802,7 +806,7 @@ skip_lpage:
 	r = kvm_arch_prepare_memory_region(kvm, &new, old, mem, user_alloc);
 	if (r)
 		goto out_free;
-
+	
 	/* map/unmap the pages in iommu page table */
 	if (npages) {
 		r = kvm_iommu_map_pages(kvm, &new);
@@ -810,16 +814,17 @@ skip_lpage:
 			goto out_free;
 	} else
 		kvm_iommu_unmap_pages(kvm, &old);
-
+	
 	r = -ENOMEM;
 	slots = kzalloc(sizeof(struct kvm_memslots), GFP_KERNEL);
 	if (!slots)
 		goto out_free;
+	
 	memcpy(slots, kvm->memslots, sizeof(struct kvm_memslots));
 	if (mem->slot >= slots->nmemslots)
 		slots->nmemslots = mem->slot + 1;
 	slots->generation++;
-
+	
 	/* actual memory is freed via old in kvm_free_physmem_slot below */
 	if (!npages) {
 		new.rmap = NULL;
@@ -831,8 +836,8 @@ skip_lpage:
 	slots->memslots[mem->slot] = new;
 	old_memslots = kvm->memslots;
 	rcu_assign_pointer(kvm->memslots, slots);
-	synchronize_srcu_expedited(&kvm->srcu);
-
+	if (!current->dfvcontext_kvm) synchronize_srcu_expedited(&kvm->srcu);
+	
 	kvm_arch_commit_memory_region(kvm, mem, old, user_alloc);
 
 	/*
@@ -844,7 +849,7 @@ skip_lpage:
 
 	kvm_free_physmem_slot(&old, &new);
 	kfree(old_memslots);
-
+	
 	return 0;
 
 out_free:

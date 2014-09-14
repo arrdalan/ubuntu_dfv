@@ -57,6 +57,13 @@ struct kvm;
 struct kvm_vcpu;
 extern struct kmem_cache *kvm_vcpu_cache;
 
+struct kvm_preempted_args {
+	hpa_t root_hpa;
+        int root_level;
+        int shadow_root_level;
+        u64 *pae_root;
+};
+
 struct kvm_io_range {
 	gpa_t addr;
 	int len;

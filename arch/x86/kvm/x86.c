@@ -4821,6 +4821,11 @@ int kvm_hv_hypercall(struct kvm_vcpu *vcpu)
 	return 1;
 }
 
+int (*dfv_kvm_op_handler)(struct kvm_vcpu *vcpu, unsigned long a0,
+			  unsigned long a1, unsigned long a2,
+			  unsigned long a3) = NULL;
+EXPORT_SYMBOL(dfv_kvm_op_handler);
+
 int kvm_emulate_hypercall(struct kvm_vcpu *vcpu)
 {
 	unsigned long nr, a0, a1, a2, a3, ret;
@@ -4856,6 +4861,12 @@ int kvm_emulate_hypercall(struct kvm_vcpu *vcpu)
 		break;
 	case KVM_HC_MMU_OP:
 		r = kvm_pv_mmu_op(vcpu, a0, hc_gpa(vcpu, a1, a2), &ret);
+		break;
+	case KVM_HC_DFV_OP:
+		if (dfv_kvm_op_handler)
+			r = (*dfv_kvm_op_handler)(vcpu, a0, a1, a2, a3);
+		else
+			r = -KVM_EFAULT; 
 		break;
 	default:
 		ret = -KVM_ENOSYS;

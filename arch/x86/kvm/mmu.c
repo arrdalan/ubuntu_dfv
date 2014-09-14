@@ -186,7 +186,7 @@ struct kvm_shadow_walk_iterator {
 	     shadow_walk_okay(&(_walker)) &&				\
 		({ spte = mmu_spte_get_lockless(_walker.sptep); 1; });	\
 	     __shadow_walk_next(&(_walker), spte))
-
+	
 static struct kmem_cache *pte_list_desc_cache;
 static struct kmem_cache *mmu_page_header_cache;
 static struct percpu_counter kvm_total_used_mmu_pages;
@@ -2187,54 +2187,75 @@ static int set_spte(struct kvm_vcpu *vcpu, u64 *sptep,
 {
 	u64 spte, entry = *sptep;
 	int ret = 0;
+	
+	if (current->dfvcontext_kvm && !vcpu->arch.walk_mmu->direct_map) {
+		spte = pte_access;
+		spte |= (u64)pfn << PAGE_SHIFT;
+		spte |= (1ULL << _PAGE_BIT_SPECIAL);
+		spte |= (1ULL << _PAGE_BIT_IOMAP);
+		spte |= (1ULL << _PAGE_BIT_NX);
+		goto set_pte;
+	}	
 
 	if (set_mmio_spte(sptep, gfn, pfn, pte_access))
 		return 0;
-
+	
 	/*
 	 * We don't set the accessed bit, since we sometimes want to see
 	 * whether the guest actually used the pte (in order to detect
 	 * demand paging).
 	 */
 	spte = PT_PRESENT_MASK;
+	
 	if (!speculative)
 		spte |= shadow_accessed_mask;
-
-	if (pte_access & ACC_EXEC_MASK)
+	
+	if (pte_access & ACC_EXEC_MASK) {
 		spte |= shadow_x_mask;
-	else
+	} else {
 		spte |= shadow_nx_mask;
+	}
+	
 	if (pte_access & ACC_USER_MASK)
 		spte |= shadow_user_mask;
+	
 	if (level > PT_PAGE_TABLE_LEVEL)
 		spte |= PT_PAGE_SIZE_MASK;
-	if (tdp_enabled)
+	
+	if (tdp_enabled) {
+		if (current->dfvcontext_kvm) {
+			spte |= (MTRR_TYPE_WRTHROUGH << VMX_EPT_MT_EPTE_SHIFT);
+		}
+		else {
 		spte |= kvm_x86_ops->get_mt_mask(vcpu, gfn,
 			kvm_is_mmio_pfn(pfn));
-
-	if (host_writable)
+		}
+	}
+		
+	if (host_writable) {
 		spte |= SPTE_HOST_WRITEABLE;
-	else
+	} else {
 		pte_access &= ~ACC_WRITE_MASK;
+	}
 
 	spte |= (u64)pfn << PAGE_SHIFT;
 
 	if ((pte_access & ACC_WRITE_MASK)
 	    || (!vcpu->arch.mmu.direct_map && write_fault
 		&& !is_write_protection(vcpu) && !user_fault)) {
-
 		if (level > PT_PAGE_TABLE_LEVEL &&
 		    has_wrprotected_page(vcpu->kvm, gfn, level)) {
 			ret = 1;
 			drop_spte(vcpu->kvm, sptep);
 			goto done;
 		}
-
+		
 		spte |= PT_WRITABLE_MASK;
-
+		
 		if (!vcpu->arch.mmu.direct_map
 		    && !(pte_access & ACC_WRITE_MASK)) {
 			spte &= ~PT_USER_MASK;
+			
 			/*
 			 * If we converted a user page to a kernel page,
 			 * so that the kernel can write to it when cr0.wp=0,
@@ -2253,7 +2274,7 @@ static int set_spte(struct kvm_vcpu *vcpu, u64 *sptep,
 		 */
 		if (!can_unsync && is_writable_pte(*sptep))
 			goto set_pte;
-
+		
 		if (mmu_need_write_protect(vcpu, gfn, can_unsync)) {
 			pgprintk("%s: found shadow page for %llx, marking ro\n",
 				 __func__, gfn);
@@ -2263,12 +2284,14 @@ static int set_spte(struct kvm_vcpu *vcpu, u64 *sptep,
 				spte &= ~PT_WRITABLE_MASK;
 		}
 	}
-
-	if (pte_access & ACC_WRITE_MASK)
+	
+	if (pte_access & ACC_WRITE_MASK) {
 		mark_page_dirty(vcpu->kvm, gfn);
+	}
 
 set_pte:
 	mmu_spte_update(sptep, spte);
+	
 	/*
 	 * If we overwrite a writable spte with a read-only one we
 	 * should flush remote TLBs. Otherwise rmap_write_protect
@@ -2277,6 +2300,7 @@ set_pte:
 	 */
 	if (is_writable_pte(entry) && !is_writable_pte(*sptep))
 		kvm_flush_remote_tlbs(vcpu->kvm);
+	
 done:
 	return ret;
 }
@@ -2321,11 +2345,12 @@ static void mmu_set_spte(struct kvm_vcpu *vcpu, u64 *sptep,
 	if (set_spte(vcpu, sptep, pte_access, user_fault, write_fault,
 		      level, gfn, pfn, speculative, true,
 		      host_writable)) {
-		if (write_fault)
+		if (write_fault) {
 			*emulate = 1;
+		}
 		kvm_mmu_flush_tlb(vcpu);
 	}
-
+	
 	if (unlikely(is_mmio_spte(*sptep) && emulate))
 		*emulate = 1;
 
@@ -2334,9 +2359,10 @@ static void mmu_set_spte(struct kvm_vcpu *vcpu, u64 *sptep,
 		 is_large_pte(*sptep)? "2MB" : "4kB",
 		 *sptep & PT_PRESENT_MASK ?"RW":"R", gfn,
 		 *sptep, sptep);
+	
 	if (!was_rmapped && is_large_pte(*sptep))
 		++vcpu->kvm->stat.lpages;
-
+	
 	if (is_shadow_present_pte(*sptep)) {
 		page_header_update_slot(vcpu->kvm, sptep, gfn);
 		if (!was_rmapped) {
@@ -2345,7 +2371,11 @@ static void mmu_set_spte(struct kvm_vcpu *vcpu, u64 *sptep,
 				rmap_recycle(vcpu, sptep, gfn);
 		}
 	}
-	kvm_release_pfn_clean(pfn);
+		
+	if (!current->dfvcontext_kvm) {
+		kvm_release_pfn_clean(pfn);
+	}
+	
 	if (speculative) {
 		vcpu->arch.last_pte_updated = sptep;
 		vcpu->arch.last_pte_gfn = gfn;
@@ -2451,10 +2481,9 @@ static int __direct_map(struct kvm_vcpu *vcpu, gpa_t v, int write,
 	int emulate = 0;
 	gfn_t pseudo_gfn;
 
-	for_each_shadow_entry(vcpu, (u64)gfn << PAGE_SHIFT, iterator) {
+	for_each_shadow_entry(vcpu, (u64)gfn << PAGE_SHIFT, iterator) {	
 		if (iterator.level == level) {
 			unsigned pte_access = ACC_ALL;
-
 			mmu_set_spte(vcpu, iterator.sptep, ACC_ALL, pte_access,
 				     0, write, &emulate,
 				     level, gfn, pfn, prefault, map_writable);
@@ -2473,7 +2502,9 @@ static int __direct_map(struct kvm_vcpu *vcpu, gpa_t v, int write,
 					      1, ACC_ALL, iterator.sptep);
 			if (!sp) {
 				pgprintk("nonpaging_map: ENOMEM\n");
-				kvm_release_pfn_clean(pfn);
+				if (!current->dfvcontext_kvm) {
+					kvm_release_pfn_clean(pfn);
+				}
 				return -ENOMEM;
 			}
 
@@ -2484,6 +2515,7 @@ static int __direct_map(struct kvm_vcpu *vcpu, gpa_t v, int write,
 				     | shadow_accessed_mask);
 		}
 	}
+	
 	return emulate;
 }
 
@@ -3266,6 +3298,12 @@ static int paging64_init_context_common(struct kvm_vcpu *vcpu,
 	context->shadow_root_level = level;
 	context->root_hpa = INVALID_PAGE;
 	context->direct_map = false;
+	/* the following functions are not tested yet in x86_64 */
+	context->walk_addr = paging64_walk_addr;
+	context->walk_addr_preempted = paging64_walk_addr_preempted;
+	context->fetch = paging64_fetch;
+	context->gva_to_gpa_preempted = paging64_gva_to_gpa_preempted;
+	context->__direct_map = NULL;
 	return 0;
 }
 
@@ -3293,6 +3331,11 @@ static int paging32_init_context(struct kvm_vcpu *vcpu,
 	context->shadow_root_level = PT32E_ROOT_LEVEL;
 	context->root_hpa = INVALID_PAGE;
 	context->direct_map = false;
+	context->walk_addr = paging32_walk_addr;
+	context->walk_addr_preempted = paging32_walk_addr_preempted;
+	context->fetch = paging32_fetch;
+	context->gva_to_gpa_preempted = paging32_gva_to_gpa_preempted;
+	context->__direct_map = NULL;
 	return 0;
 }
 
@@ -3321,26 +3364,45 @@ static int init_kvm_tdp_mmu(struct kvm_vcpu *vcpu)
 	context->get_pdptr = kvm_pdptr_read;
 	context->inject_page_fault = kvm_inject_page_fault;
 	context->nx = is_nx(vcpu);
-
+	context->__direct_map = __direct_map;
+	
 	if (!is_paging(vcpu)) {
 		context->nx = false;
 		context->gva_to_gpa = nonpaging_gva_to_gpa;
 		context->root_level = 0;
+		context->walk_addr = NULL;
+		context->walk_addr_preempted = NULL;
+		context->fetch = NULL;
+		context->gva_to_gpa_preempted = NULL;
 	} else if (is_long_mode(vcpu)) {
 		context->nx = is_nx(vcpu);
 		reset_rsvds_bits_mask(vcpu, context, PT64_ROOT_LEVEL);
 		context->gva_to_gpa = paging64_gva_to_gpa;
 		context->root_level = PT64_ROOT_LEVEL;
+		/* the following functions are not tested yet in x86_64 */
+		context->walk_addr = paging64_walk_addr;
+		context->walk_addr_preempted = paging64_walk_addr_preempted;
+		context->fetch = paging64_fetch;
+		context->gva_to_gpa_preempted = paging64_gva_to_gpa_preempted;
 	} else if (is_pae(vcpu)) {
 		context->nx = is_nx(vcpu);
 		reset_rsvds_bits_mask(vcpu, context, PT32E_ROOT_LEVEL);
 		context->gva_to_gpa = paging64_gva_to_gpa;
 		context->root_level = PT32E_ROOT_LEVEL;
+		/* the following functions are not tested yet in x86_64 */
+		context->walk_addr = paging64_walk_addr;
+		context->walk_addr_preempted = paging64_walk_addr_preempted;
+		context->fetch = paging64_fetch;
+		context->gva_to_gpa_preempted = paging64_gva_to_gpa_preempted;
 	} else {
 		context->nx = false;
 		reset_rsvds_bits_mask(vcpu, context, PT32_ROOT_LEVEL);
 		context->gva_to_gpa = paging32_gva_to_gpa;
 		context->root_level = PT32_ROOT_LEVEL;
+		context->walk_addr = paging32_walk_addr;
+		context->walk_addr_preempted = paging32_walk_addr_preempted;
+		context->fetch = paging32_fetch;
+		context->gva_to_gpa_preempted = paging32_gva_to_gpa_preempted;
 	}
 
 	return 0;

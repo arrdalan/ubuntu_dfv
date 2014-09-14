@@ -1589,6 +1589,7 @@ struct task_struct {
 	void *dfvguest;
 	void *dfvguest_thread;
 	const void *dfvdata[3];
+	bool dfvcontext_kvm; /* FIXME: get rid of this */
 };
 
 /* Future-safe accessor for struct task_struct's cpus_allowed. */

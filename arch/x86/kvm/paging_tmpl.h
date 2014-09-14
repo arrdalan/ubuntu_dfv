@@ -140,7 +140,8 @@ static bool FNAME(is_last_gpte)(struct guest_walker *walker,
  */
 static int FNAME(walk_addr_generic)(struct guest_walker *walker,
 				    struct kvm_vcpu *vcpu, struct kvm_mmu *mmu,
-				    gva_t addr, u32 access)
+				    gva_t addr, u32 access, bool is_preempted,
+				    pt_element_t cr3_val)
 {
 	pt_element_t pte;
 	pt_element_t __user *uninitialized_var(ptep_user);
@@ -159,7 +160,10 @@ static int FNAME(walk_addr_generic)(struct guest_walker *walker,
 retry_walk:
 	eperm = false;
 	walker->level = mmu->root_level;
-	pte           = mmu->get_cr3(vcpu);
+	if (is_preempted)
+		pte = cr3_val;
+	else
+		pte = mmu->get_cr3(vcpu);
 
 #if PTTYPE == 64
 	if (walker->level == PT32E_ROOT_LEVEL) {
@@ -170,8 +174,14 @@ retry_walk:
 		--walker->level;
 	}
 #endif
-	ASSERT((!is_long_mode(vcpu) && is_pae(vcpu)) ||
-	       (mmu->get_cr3(vcpu) & CR3_NONPAE_RESERVED_BITS) == 0);
+	
+	if (is_preempted) {
+		ASSERT((!is_long_mode(vcpu) && is_pae(vcpu)) ||
+			(cr3_val & CR3_NONPAE_RESERVED_BITS) == 0);
+	} else {
+		ASSERT((!is_long_mode(vcpu) && is_pae(vcpu)) ||
+			(mmu->get_cr3(vcpu) & CR3_NONPAE_RESERVED_BITS) == 0);
+	}
 
 	pt_access = ACC_ALL;
 
@@ -182,25 +192,31 @@ retry_walk:
 		index = PT_INDEX(addr, walker->level);
 
 		table_gfn = gpte_to_gfn(pte);
+		
 		offset    = index * sizeof(pt_element_t);
+		
 		pte_gpa   = gfn_to_gpa(table_gfn) + offset;
+		
 		walker->table_gfn[walker->level - 1] = table_gfn;
 		walker->pte_gpa[walker->level - 1] = pte_gpa;
 
 		real_gfn = mmu->translate_gpa(vcpu, gfn_to_gpa(table_gfn),
 					      PFERR_USER_MASK|PFERR_WRITE_MASK);
+		
 		if (unlikely(real_gfn == UNMAPPED_GVA))
 			goto error;
 		real_gfn = gpa_to_gfn(real_gfn);
 
 		host_addr = gfn_to_hva(vcpu->kvm, real_gfn);
+		
 		if (unlikely(kvm_is_error_hva(host_addr)))
 			goto error;
 
 		ptep_user = (pt_element_t __user *)((void *)host_addr + offset);
+		
 		if (unlikely(__copy_from_user(&pte, ptep_user, sizeof(pte))))
 			goto error;
-
+		
 		trace_kvm_mmu_paging_element(pte, walker->level);
 
 		if (unlikely(!is_present_gpte(pte)))
@@ -222,6 +238,7 @@ retry_walk:
 #endif
 
 		last_gpte = FNAME(is_last_gpte)(walker, vcpu, mmu, pte);
+		
 		if (last_gpte) {
 			pte_access = pt_access &
 				     FNAME(gpte_access)(vcpu, pte, true);
@@ -244,6 +261,7 @@ retry_walk:
 				goto retry_walk;
 
 			mark_page_dirty(vcpu->kvm, table_gfn);
+			
 			pte |= PT_ACCESSED_MASK;
 		}
 
@@ -256,6 +274,7 @@ retry_walk:
 			u32 ac;
 
 			gfn = gpte_to_gfn_lvl(pte, lvl);
+			
 			gfn += (addr & PT_LVL_OFFSET_MASK(lvl)) >> PAGE_SHIFT;
 
 			if (PTTYPE == 32 &&
@@ -267,6 +286,7 @@ retry_walk:
 
 			real_gpa = mmu->translate_gpa(vcpu, gfn_to_gpa(gfn),
 						      ac);
+			
 			if (real_gpa == UNMAPPED_GVA)
 				return 0;
 
@@ -286,7 +306,7 @@ retry_walk:
 
 	if (write_fault && unlikely(!is_dirty_gpte(pte))) {
 		int ret;
-
+		
 		trace_kvm_mmu_set_dirty_bit(table_gfn, index, sizeof(pte));
 		ret = FNAME(cmpxchg_gpte)(vcpu, mmu, ptep_user, index,
 					  pte, pte|PT_DIRTY_MASK);
@@ -296,12 +316,15 @@ retry_walk:
 			goto retry_walk;
 
 		mark_page_dirty(vcpu->kvm, table_gfn);
+		
 		pte |= PT_DIRTY_MASK;
+		
 		walker->ptes[walker->level - 1] = pte;
 	}
 
 	walker->pt_access = pt_access;
 	walker->pte_access = pte_access;
+	
 	pgprintk("%s: pte %llx pte_access %x pt_access %x\n",
 		 __func__, (u64)pte, pte_access, pt_access);
 	return 1;
@@ -326,7 +349,7 @@ static int FNAME(walk_addr)(struct guest_walker *walker,
 			    struct kvm_vcpu *vcpu, gva_t addr, u32 access)
 {
 	return FNAME(walk_addr_generic)(walker, vcpu, &vcpu->arch.mmu, addr,
-					access);
+					access, false, 0);
 }
 
 static int FNAME(walk_addr_nested)(struct guest_walker *walker,
@@ -334,7 +357,15 @@ static int FNAME(walk_addr_nested)(struct guest_walker *walker,
 				   u32 access)
 {
 	return FNAME(walk_addr_generic)(walker, vcpu, &vcpu->arch.nested_mmu,
-					addr, access);
+					addr, access, false, 0);
+}
+
+static int FNAME(walk_addr_preempted)(struct guest_walker *walker,
+			    struct kvm_vcpu *vcpu, gva_t addr, u32 access,
+			    unsigned long cr3_val)
+{	
+	return FNAME(walk_addr_generic)(walker, vcpu, &vcpu->arch.mmu, addr,
+					access, true, (pt_element_t) cr3_val);	
 }
 
 static bool FNAME(prefetch_invalid_gpte)(struct kvm_vcpu *vcpu,
@@ -474,8 +505,8 @@ static u64 *FNAME(fetch)(struct kvm_vcpu *vcpu, gva_t addr,
 	int top_level;
 	unsigned direct_access;
 	struct kvm_shadow_walk_iterator it;
-
-	if (!is_present_gpte(gw->ptes[gw->level - 1]))
+	
+	if (!is_present_gpte(gw->ptes[gw->level - 1]))	
 		return NULL;
 
 	direct_access = gw->pte_access;
@@ -509,8 +540,8 @@ static u64 *FNAME(fetch)(struct kvm_vcpu *vcpu, gva_t addr,
 		/*
 		 * Verify that the gpte in the page we've just write
 		 * protected is still there.
-		 */
-		if (FNAME(gpte_changed)(vcpu, gw, it.level - 1))
+		 */	
+		if (FNAME(gpte_changed)(vcpu, gw, it.level - 1))		
 			goto out_gpte_changed;
 
 		if (sp)
@@ -533,9 +564,10 @@ static u64 *FNAME(fetch)(struct kvm_vcpu *vcpu, gva_t addr,
 
 		sp = kvm_mmu_get_page(vcpu, direct_gfn, addr, it.level-1,
 				      true, direct_access, it.sptep);
+		
 		link_shadow_page(it.sptep, sp);
 	}
-
+	
 	mmu_set_spte(vcpu, it.sptep, access, gw->pte_access,
 		     user_fault, write_fault, emulate, it.level,
 		     gw->gfn, pfn, prefault, map_writable);
@@ -663,7 +695,7 @@ static void FNAME(invlpg)(struct kvm_vcpu *vcpu, gva_t gva)
 	gpa_t pte_gpa = -1;
 	int level;
 	u64 *sptep;
-	int need_flush = 0;
+	int need_flush = 0;	
 
 	vcpu_clear_mmio_info(vcpu, gva);
 
@@ -679,7 +711,7 @@ static void FNAME(invlpg)(struct kvm_vcpu *vcpu, gva_t gva)
 
 			if (!sp->unsync)
 				break;
-
+			
 			shift = PAGE_SHIFT -
 				  (PT_LEVEL_BITS - PT64_LEVEL_BITS) * level;
 			offset = sp->role.quadrant << shift;
@@ -697,7 +729,7 @@ static void FNAME(invlpg)(struct kvm_vcpu *vcpu, gva_t gva)
 
 			break;
 		}
-
+		
 		if (!is_shadow_present_pte(*sptep) || !sp->unsync_children)
 			break;
 	}
@@ -711,9 +743,10 @@ static void FNAME(invlpg)(struct kvm_vcpu *vcpu, gva_t gva)
 
 	if (pte_gpa == -1)
 		return;
-
+	
 	if (mmu_topup_memory_caches(vcpu))
 		return;
+	
 	kvm_mmu_pte_write(vcpu, pte_gpa, NULL, sizeof(pt_element_t), 0);
 }
 
@@ -744,6 +777,28 @@ static gpa_t FNAME(gva_to_gpa_nested)(struct kvm_vcpu *vcpu, gva_t vaddr,
 	int r;
 
 	r = FNAME(walk_addr_nested)(&walker, vcpu, vaddr, access);
+
+	if (r) {
+		gpa = gfn_to_gpa(walker.gfn);
+		gpa |= vaddr & ~PAGE_MASK;
+	} else if (exception)
+		*exception = walker.fault;
+
+	return gpa;
+}
+
+/* 
+ * This routine translate a gva of a thread that might be preempted in the guest.
+ */
+static gpa_t FNAME(gva_to_gpa_preempted)(struct kvm_vcpu *vcpu, gva_t vaddr, u32 access,
+			       struct x86_exception *exception, unsigned long cr3_val)
+			       //struct x86_exception *exception, const void *cr3_ptr)
+{
+	struct guest_walker walker;
+	gpa_t gpa = UNMAPPED_GVA;
+	int r;
+
+	r = FNAME(walk_addr_preempted)(&walker, vcpu, vaddr, access, cr3_val);
 
 	if (r) {
 		gpa = gfn_to_gpa(walker.gfn);

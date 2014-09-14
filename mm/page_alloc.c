@@ -304,22 +304,21 @@ static void bad_page(struct page *page)
 			goto out;
 		}
 		if (nr_unshown) {
-			printk(KERN_ALERT
-			      "BUG: Bad page state: %lu messages suppressed\n",
-				nr_unshown);
+			////printk(KERN_ALERT
+			////      "BUG: Bad page state: %lu messages suppressed\n",
+			////	nr_unshown);
 			nr_unshown = 0;
 		}
 		nr_shown = 0;
 	}
 	if (nr_shown++ == 0)
 		resume = jiffies + 60 * HZ;
+	////printk(KERN_ALERT "BUG: Bad page state in process %s  pfn:%05lx\n",
+	////	current->comm, page_to_pfn(page));
+	////dump_page(page);
 
-	printk(KERN_ALERT "BUG: Bad page state in process %s  pfn:%05lx\n",
-		current->comm, page_to_pfn(page));
-	dump_page(page);
-
-	print_modules();
-	dump_stack();
+	////print_modules();
+	////dump_stack();
 out:
 	/* Leave bad fields for debug, except PageBuddy could make trouble */
 	reset_page_mapcount(page); /* remove PageBuddy */
